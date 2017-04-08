@@ -1,0 +1,244 @@
+[gd_scene load_steps=13 format=1]
+
+[ext_resource path="res://addons/gamejolt_api/gjapi.gd" type="Script" id=1]
+[ext_resource path="res://addons/gamejolt_api/gj_icon.png" type="Texture" id=2]
+[ext_resource path="res://Graphics/titlefont.fnt" type="BitmapFont" id=3]
+[ext_resource path="res://Graphics/pixelfont.fnt" type="BitmapFont" id=4]
+[ext_resource path="res://Scenes/backgroundscroller.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Graphics/grass.png" type="Texture" id=6]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "extends Label\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 75))\n\tget_node(\"../username\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../username\").get_size().x/2, 247))\n\tget_node(\"../token\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../token\").get_size().x/2, 344))\n\tget_node(\"../signin\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../signin\").get_size().x/2, 623))\n\tget_node(\"../response\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../response\").get_size().x/2, 485))\n\tget_node(\"../greet\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../greet\").get_size().x/2, 294))"
+
+[sub_resource type="StyleBoxFlat" id=2]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+bg_color = Color( 0.230469, 0.230469, 0.230469, 1 )
+light_color = Color( 0.609375, 0.609375, 0.609375, 0.633882 )
+dark_color = Color( 0.507812, 0.507812, 0.507812, 1 )
+border_size = 4
+border_blend = true
+draw_bg = true
+
+[sub_resource type="StyleBoxFlat" id=3]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+bg_color = Color( 0.140625, 0.140625, 0.140625, 1 )
+light_color = Color( 0.566406, 0.566406, 0.566406, 0.508196 )
+dark_color = Color( 0.564706, 0.564706, 0.564706, 0.505882 )
+border_size = 4
+border_blend = true
+draw_bg = true
+
+[sub_resource type="Theme" id=4]
+
+default_font = ExtResource( 4 )
+ToolButton/colors/font_color = Color( 0.878431, 0.878431, 0.878431, 1 )
+ToolButton/colors/font_color_disabled = Color( 0.9, 0.95, 1, 0.3 )
+ToolButton/colors/font_color_hover = Color( 0.941176, 0.941176, 0.941176, 1 )
+ToolButton/colors/font_color_pressed = Color( 1, 1, 1, 1 )
+ToolButton/constants/hseparation = 3
+ToolButton/fonts/font = null
+ToolButton/styles/disabled = null
+ToolButton/styles/focus = null
+ToolButton/styles/hover = SubResource( 2 )
+ToolButton/styles/normal = null
+ToolButton/styles/pressed = SubResource( 3 )
+
+[sub_resource type="GDScript" id=5]
+
+script/source = "extends ToolButton\n\nvar username\nvar token\nvar signed_in = false\nvar save_location = \"user://score.scr\"\n\nfunc _ready():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tusername = savedata.get_value(\"GameJolt\", \"username\")\n\ttoken = savedata.get_value(\"GameJolt\", \"token\")\n\tsigned_in = savedata.get_value(\"GameJolt\", \"signed_in\")\n\tif(signed_in):\n\t\tsucceeded_to_log_in()\n\t\nfunc attempt_log_in():\n\tusername = get_node(\"../username\").get_text()\n\ttoken = get_node(\"../token\").get_text()\n\tget_node(\"../../GameJoltAPI\").auth_user(token, username)\n\t\nfunc log_out():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tsavedata.set_value(\"GameJolt\", \"username\", \"\")\n\tsavedata.set_value(\"GameJolt\", \"token\", \"\")\n\tsavedata.set_value(\"GameJolt\", \"signed_in\", false)\n\tsigned_in = false\n\tsavedata.save(save_location)\n\t\n\tget_node(\"../response\").set_hidden(true)\n\tget_node(\"../greet\").set_hidden(true)\n\tget_node(\"../username\").set_hidden(false)\n\tget_node(\"../token\").set_hidden(false)\n\tset_text(\"Sign In\")\n\t\nfunc succeeded_to_log_in():\n\tsigned_in = true\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tsavedata.set_value(\"GameJolt\", \"username\", username)\n\tsavedata.set_value(\"GameJolt\", \"token\", token)\n\tsavedata.set_value(\"GameJolt\", \"signed_in\", true)\n\tsavedata.save(save_location)\n\tget_node(\"../response\").set_text(\"Success!\")\n\tget_node(\"../response\").set_hidden(false)\n\tget_node(\"../greet\").set_text(\"Welcome, \" + username + \"!\")\n\tget_node(\"../greet\").set_hidden(false)\n\tget_node(\"../username\").set_hidden(true)\n\tget_node(\"../token\").set_hidden(true)\n\tset_text(\"Sign Out\")\n\nfunc _on_token_text_entered( text ):\n\tattempt_log_in()\n\nfunc _on_ToolButton_pressed():\n\tif(signed_in):\n\t\tlog_out()\n\telse:\n\t\tattempt_log_in()\n\nfunc _on_username_text_entered( text ):\n\tattempt_log_in()\n\nfunc _on_GameJoltAPI_api_authenticated( success ):\n\tvar response_dict = {}\n\tresponse_dict.parse_json(success)\n\tif(response_dict[\"response\"][\"success\"] == \"true\"):\n\t\tsucceeded_to_log_in()\n\telse:\n\t\tget_node(\"../response\").set_text(\"Failed!\")\n\t\tget_node(\"../response\").set_hidden(false)\n"
+
+[sub_resource type="GDScript" id=6]
+
+script/source = "extends ToolButton\n\nvar save_location = \"user://score.scr\"\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2(80, OS.get_window_size().y - 150))\n\nfunc _on_back_pressed():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tsavedata.set_value(\"GameJolt\", \"username\", get_node(\"../signin\").username)\n\tsavedata.set_value(\"GameJolt\", \"token\", get_node(\"../signin\").token)\n\tsavedata.save(save_location)\n\tget_tree().change_scene(\"res://Scenes/MainMenu.tscn\")\n"
+
+[node name="Node" type="Node"]
+
+[node name="GameJoltAPI" type="HTTPRequest" parent="."]
+
+use_threads = false
+body_size_limit = -1
+max_redirects = 8
+script/script = ExtResource( 1 )
+__meta__ = { "_editor_icon":ExtResource( 2 ) }
+private_key = "019361378474be33e306263e790331f2"
+game_id = "244666"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="title" type="Label" parent="CanvasLayer"]
+
+anchor/left = 3
+anchor/top = 3
+anchor/right = 3
+anchor/bottom = 3
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 410.0
+margin/top = 333.0
+margin/right = -501.0
+margin/bottom = 251.0
+custom_fonts/font = ExtResource( 3 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+custom_constants/shadow_as_outline = 2
+text = "Log In With GameJolt"
+align = 1
+valign = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+script/script = SubResource( 1 )
+
+[node name="username" type="LineEdit" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 547.0
+margin/top = 247.0
+margin/right = 1122.0
+margin/bottom = 287.0
+custom_fonts/font = ExtResource( 4 )
+placeholder/text = "Username"
+placeholder/alpha = 0.6
+focus_mode = 2
+caret/caret_blink = false
+caret/caret_blink_speed = 0.65
+
+[node name="token" type="LineEdit" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 548.0
+margin/top = 344.0
+margin/right = 1123.0
+margin/bottom = 384.0
+custom_fonts/font = ExtResource( 4 )
+placeholder/text = "Token (Not your password!)"
+placeholder/alpha = 0.6
+focus_mode = 2
+caret/caret_blink = false
+caret/caret_blink_speed = 0.65
+
+[node name="signin" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 4 )
+margin/left = 672.0
+margin/top = 623.0
+margin/right = 922.0
+margin/bottom = 705.0
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Sign In"
+flat = true
+script/script = SubResource( 5 )
+
+[node name="back" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 4 )
+margin/left = 62.0
+margin/top = 765.0
+margin/right = 312.0
+margin/bottom = 847.0
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Back"
+flat = true
+script/script = SubResource( 6 )
+
+[node name="response" type="Label" parent="CanvasLayer"]
+
+visibility/visible = false
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 610.0
+margin/top = 485.0
+margin/right = 1023.0
+margin/bottom = 567.0
+custom_fonts/font = ExtResource( 3 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 1
+custom_constants/shadow_offset_y = 1
+custom_constants/shadow_as_outline = 2
+text = "Success!"
+align = 1
+valign = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="greet" type="Label" parent="CanvasLayer"]
+
+visibility/visible = false
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 589.0
+margin/top = 294.0
+margin/right = 736.0
+margin/bottom = 324.0
+custom_fonts/font = ExtResource( 4 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 1
+custom_constants/shadow_offset_y = 1
+custom_constants/shadow_as_outline = 2
+text = "Welcome, "
+align = 1
+valign = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="RigidBody2D" parent="." instance=ExtResource( 5 )]
+
+[node name="Sprite" type="Sprite" parent="."]
+
+transform/scale = Vector2( 2, 2 )
+texture = ExtResource( 6 )
+centered = false
+modulate = Color( 0.623529, 0.92549, 0.988235, 1 )
+
+[connection signal="api_authenticated" from="GameJoltAPI" to="CanvasLayer/signin" method="_on_GameJoltAPI_api_authenticated"]
+
+[connection signal="text_entered" from="CanvasLayer/username" to="CanvasLayer/signin" method="_on_username_text_entered"]
+
+[connection signal="text_entered" from="CanvasLayer/token" to="CanvasLayer/signin" method="_on_token_text_entered"]
+
+[connection signal="pressed" from="CanvasLayer/signin" to="CanvasLayer/signin" method="_on_ToolButton_pressed"]
+
+[connection signal="pressed" from="CanvasLayer/back" to="CanvasLayer/back" method="_on_back_pressed"]
+
+

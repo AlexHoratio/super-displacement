@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=1]
+
+[ext_resource path="res://Graphics/cursor.png" type="Texture" id=1]
+
+[sub_resource type="CanvasItemShader" id=1]
+
+_code = { "fragment":"color col = vec4(texscreen(SCREEN_UV), 1.0);\nuniform float BRIGHTNESS;\nCOLOR = vec4((1 - col.r) * BRIGHTNESS, (1 - col.g) * BRIGHTNESS, (1 - col.b) * BRIGHTNESS, COLOR.a);", "fragment_ofs":0, "light":"", "light_ofs":0, "vertex":"", "vertex_ofs":0 }
+
+[sub_resource type="CanvasItemMaterial" id=2]
+
+shader/shader = SubResource( 1 )
+shader/shading_mode = 0
+shader_param/BRIGHTNESS = 1.0
+
+[sub_resource type="GDScript" id=3]
+
+script/source = "extends Sprite\n\nfunc _ready():\n\tset_z(4096)\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(get_node(\"../background\").get_global_mouse_pos())"
+
+[node name="cursor" type="Sprite"]
+
+material/material = SubResource( 2 )
+transform/pos = Vector2( 242, 159 )
+texture = ExtResource( 1 )
+script/script = SubResource( 3 )
+
+

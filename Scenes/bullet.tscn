@@ -1,0 +1,113 @@
+[gd_scene load_steps=6 format=1]
+
+[ext_resource path="res://Graphics/player.png" type="Texture" id=1]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "extends RigidBody2D\n\nvar pulse_vector = Vector2(0, 0)\n\nfunc _ready():\n\tapply_impulse(Vector2(0, 0), pulse_vector * 500)\n\nfunc _on_Timer_timeout():\n\tget_node(\"Particles2D\").set_emitting(false)\n\tif(has_node(\"bullet\")):\n\t\tget_node(\"bullet\").queue_free()\n\tget_node(\"Particles2D/final_termination\").start()\n\nfunc _on_final_termination_timeout():\n\tqueue_free()\n"
+
+[sub_resource type="ColorRamp" id=2]
+
+offsets = FloatArray( 0, 1 )
+colors = ColorArray( 1, 0.540863, 0.00390625, 1, 1, 1, 1, 1 )
+
+[sub_resource type="RectangleShape2D" id=3]
+
+custom_solver_bias = 0.0
+extents = Vector2( 6.41314, 6.39506 )
+
+[sub_resource type="GDScript" id=4]
+
+script/source = "extends Area2D\n\nfunc _on_Area2D_body_enter( body ):\n\tif(body != get_node(\"../../player\")):\n\t\tget_node(\"../Particles2D\").set_emitting(false)\n\t\tqueue_free()\n\t\tget_node(\"../Particles2D/final_termination\").start()"
+
+[node name="bullet" type="RigidBody2D"]
+
+input/pickable = true
+collision/layers = 1
+collision/mask = 1
+mode = 0
+mass = 1.0
+friction = 1.0
+bounce = 0.0
+gravity_scale = 0.0
+custom_integrator = false
+continuous_cd = 0
+contacts_reported = 0
+contact_monitor = false
+sleeping = false
+can_sleep = true
+velocity/linear = Vector2( 0, 0 )
+velocity/angular = 0.0
+damp_override/linear = -1.0
+damp_override/angular = -1.0
+script/script = SubResource( 1 )
+
+[node name="Particles2D" type="Particles2D" parent="."]
+
+config/amount = 82
+config/lifetime = 1.0
+config/local_space = false
+params/direction = 0.0
+params/spread = 180.0
+params/linear_velocity = 40.0
+params/spin_velocity = 0.0
+params/orbit_velocity = 0.0
+params/gravity_direction = 0.0
+params/gravity_strength = 0.0
+params/radial_accel = 0.0
+params/tangential_accel = 0.0
+params/damping = 0.0
+params/initial_angle = 0.0
+params/initial_size = 5.0
+params/final_size = 1.0
+params/hue_variation = 0.0
+params/anim_speed_scale = 1.0
+params/anim_initial_pos = 0.0
+color/color = Color( 1, 0.750671, 0.160156, 1 )
+color/color_ramp = SubResource( 2 )
+
+[node name="final_termination" type="Timer" parent="Particles2D"]
+
+process_mode = 1
+wait_time = 1.0
+one_shot = false
+autostart = false
+
+[node name="bullet" type="Area2D" parent="."]
+
+input/pickable = true
+shapes/0/shape = SubResource( 3 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, 0, 0 )
+shapes/0/trigger = false
+gravity_vec = Vector2( 0, 1 )
+gravity = 98.0
+linear_damp = 0.1
+angular_damp = 1.0
+script/script = SubResource( 4 )
+
+[node name="Sprite" type="Sprite" parent="bullet"]
+
+transform/scale = Vector2( 0.1, 0.1 )
+texture = ExtResource( 1 )
+modulate = Color( 0, 1, 0.0859375, 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="bullet"]
+
+shape = SubResource( 3 )
+trigger = false
+_update_shape_index = 0
+
+[node name="Timer" type="Timer" parent="."]
+
+process_mode = 1
+wait_time = 1.0
+one_shot = false
+autostart = true
+
+[connection signal="timeout" from="Particles2D/final_termination" to="." method="_on_final_termination_timeout"]
+
+[connection signal="body_enter" from="bullet" to="bullet" method="_on_Area2D_body_enter"]
+
+[connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
+
+

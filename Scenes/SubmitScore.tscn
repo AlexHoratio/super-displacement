@@ -1,0 +1,228 @@
+[gd_scene load_steps=15 format=1]
+
+[ext_resource path="res://addons/gamejolt_api/gjapi.gd" type="Script" id=1]
+[ext_resource path="res://addons/gamejolt_api/gj_icon.png" type="Texture" id=2]
+[ext_resource path="res://Graphics/titlefont.fnt" type="BitmapFont" id=3]
+[ext_resource path="res://Graphics/pixelfont.fnt" type="BitmapFont" id=4]
+[ext_resource path="res://Scenes/backgroundscroller.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Graphics/grass.png" type="Texture" id=6]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "extends Label\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 75))\n\tget_node(\"../score\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../score\").get_size().x/2, 250))\n\tget_node(\"../submit\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../submit\").get_size().x/2, 550))\n\tget_node(\"../guest_uname\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../guest_uname\").get_size().x/2, 450))\n\tget_node(\"../high_scores\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../high_scores\").get_size().x/2, 660))"
+
+[sub_resource type="GDScript" id=2]
+
+script/source = "extends Label\n\nfunc _ready():\n\tvar scoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tvar latest_score = scoreFile.get_value(\"Score\", \"latest_score\")\n\tset_text(\"Latest score: \" + str(latest_score))"
+
+[sub_resource type="StyleBoxFlat" id=3]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+bg_color = Color( 0.230469, 0.230469, 0.230469, 1 )
+light_color = Color( 0.609375, 0.609375, 0.609375, 0.633882 )
+dark_color = Color( 0.507812, 0.507812, 0.507812, 1 )
+border_size = 4
+border_blend = true
+draw_bg = true
+
+[sub_resource type="StyleBoxFlat" id=4]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+bg_color = Color( 0.140625, 0.140625, 0.140625, 1 )
+light_color = Color( 0.566406, 0.566406, 0.566406, 0.508196 )
+dark_color = Color( 0.564706, 0.564706, 0.564706, 0.505882 )
+border_size = 4
+border_blend = true
+draw_bg = true
+
+[sub_resource type="Theme" id=5]
+
+default_font = ExtResource( 4 )
+ToolButton/colors/font_color = Color( 0.878431, 0.878431, 0.878431, 1 )
+ToolButton/colors/font_color_disabled = Color( 0.9, 0.95, 1, 0.3 )
+ToolButton/colors/font_color_hover = Color( 0.941176, 0.941176, 0.941176, 1 )
+ToolButton/colors/font_color_pressed = Color( 1, 1, 1, 1 )
+ToolButton/constants/hseparation = 3
+ToolButton/fonts/font = null
+ToolButton/styles/disabled = null
+ToolButton/styles/focus = null
+ToolButton/styles/hover = SubResource( 3 )
+ToolButton/styles/normal = null
+ToolButton/styles/pressed = SubResource( 4 )
+
+[sub_resource type="GDScript" id=6]
+
+script/source = "extends ToolButton\n\nvar scoreFile\n\nfunc _ready():\n\tscoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tget_node(\"../guest_uname\").set_text(scoreFile.get_value(\"GameJolt\", \"username\"))\n\nfunc _on_submit_pressed():\n\trandomize()\n\tvar latest_score = scoreFile.get_value(\"Score\", \"latest_score\")\n\tvar guest_name = get_node(\"../guest_uname\").get_text()\n\tif(guest_name == \"\"):\n\t\tget_node(\"../../GameJoltAPI\").add_score_for_guest(str(latest_score), int(latest_score), \"Guest\"+str(randi()%10000000))\n\telse:\n\t\tget_node(\"../../GameJoltAPI\").add_score_for_guest(str(latest_score), int(latest_score), guest_name.replace(\" \", \"_\"))\n\nfunc _on_guest_uname_text_entered( text ):\n\t_on_submit_pressed()\n\nfunc _on_GameJoltAPI_api_score_added( success ):\n\tvar succeeded = {}\n\tsucceeded.parse_json(success)\n\tif(succeeded[\"response\"][\"success\"]):\n\t\tset_hidden(true)\n\t\tget_node(\"../guest_uname\").set_hidden(true)\n\t\tget_node(\"../score\").set_text(\"Success!\")\n\telse:\n\t\tget_node(\"../score\").set_text(\"Error!\\n\" + success)\n"
+
+[sub_resource type="GDScript" id=7]
+
+script/source = "extends ToolButton\n\nvar scoreFile\n\nfunc _ready():\n\tscoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tget_node(\"../guest_uname\").set_text(scoreFile.get_value(\"GameJolt\", \"username\"))\n\nfunc _on_high_scores_pressed():\n\tget_tree().change_scene(\"res://Scenes/HighScores.tscn\")\n"
+
+[sub_resource type="GDScript" id=8]
+
+script/source = "extends ToolButton\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2(80, OS.get_window_size().y - 150))\n\nfunc _on_back_pressed():\n\tget_tree().change_scene(\"res://Scenes/MainMenu.tscn\")\n"
+
+[node name="Node" type="Node"]
+
+[node name="GameJoltAPI" type="HTTPRequest" parent="."]
+
+use_threads = false
+body_size_limit = -1
+max_redirects = 8
+script/script = ExtResource( 1 )
+__meta__ = { "_editor_icon":ExtResource( 2 ) }
+private_key = "019361378474be33e306263e790331f2"
+game_id = "244666"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="title" type="Label" parent="CanvasLayer"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 541.0
+margin/top = 68.0
+margin/right = 1109.0
+margin/bottom = 150.0
+custom_fonts/font = ExtResource( 3 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = -2
+custom_constants/shadow_offset_y = 2
+custom_constants/shadow_as_outline = 1
+text = "Submit Score"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+script/script = SubResource( 1 )
+
+[node name="score" type="Label" parent="CanvasLayer"]
+
+anchor/left = 3
+anchor/top = 3
+anchor/right = 3
+anchor/bottom = 3
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 158.0
+margin/top = 161.0
+margin/right = -75.0
+margin/bottom = 131.0
+custom_fonts/font = ExtResource( 3 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+custom_constants/shadow_as_outline = 2
+text = "Last Score was"
+align = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+script/script = SubResource( 2 )
+
+[node name="guest_uname" type="LineEdit" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 631.0
+margin/top = 456.0
+margin/right = 892.0
+margin/bottom = 496.0
+custom_fonts/font = ExtResource( 4 )
+placeholder/text = "Display Name"
+placeholder/alpha = 0.6
+max_length = 13
+focus_mode = 2
+caret/caret_blink = false
+caret/caret_blink_speed = 0.65
+
+[node name="submit" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 5 )
+margin/left = 637.0
+margin/top = 568.0
+margin/right = 887.0
+margin/bottom = 650.0
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Submit Score"
+flat = true
+script/script = SubResource( 6 )
+
+[node name="high_scores" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 5 )
+margin/left = 638.0
+margin/top = 687.0
+margin/right = 888.0
+margin/bottom = 769.0
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "High Scores"
+flat = true
+script/script = SubResource( 7 )
+
+[node name="back" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 5 )
+margin/left = 72.0
+margin/top = 735.0
+margin/right = 322.0
+margin/bottom = 817.0
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Back"
+flat = true
+script/script = SubResource( 8 )
+
+[node name="RigidBody2D" parent="." instance=ExtResource( 5 )]
+
+[node name="Sprite" type="Sprite" parent="."]
+
+transform/scale = Vector2( 2, 2 )
+texture = ExtResource( 6 )
+centered = false
+modulate = Color( 0.623529, 0.92549, 0.988235, 1 )
+
+[connection signal="api_score_added" from="GameJoltAPI" to="CanvasLayer/submit" method="_on_GameJoltAPI_api_score_added"]
+
+[connection signal="text_entered" from="CanvasLayer/guest_uname" to="CanvasLayer/submit" method="_on_guest_uname_text_entered"]
+
+[connection signal="pressed" from="CanvasLayer/submit" to="CanvasLayer/submit" method="_on_submit_pressed"]
+
+[connection signal="pressed" from="CanvasLayer/high_scores" to="CanvasLayer/high_scores" method="_on_high_scores_pressed"]
+
+[connection signal="pressed" from="CanvasLayer/back" to="CanvasLayer/back" method="_on_back_pressed"]
+
+

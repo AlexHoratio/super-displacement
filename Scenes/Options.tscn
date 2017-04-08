@@ -1,0 +1,267 @@
+[gd_scene load_steps=16 format=1]
+
+[ext_resource path="res://Graphics/grass.png" type="Texture" id=1]
+[ext_resource path="res://Graphics/titlefont.fnt" type="BitmapFont" id=2]
+[ext_resource path="res://Graphics/pixelfont.fnt" type="BitmapFont" id=3]
+[ext_resource path="res://Scenes/backgroundscroller.tscn" type="PackedScene" id=4]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "extends Label\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - 330, 75))"
+
+[sub_resource type="StyleBoxFlat" id=2]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+bg_color = Color( 0.230469, 0.230469, 0.230469, 1 )
+light_color = Color( 0.609375, 0.609375, 0.609375, 0.633882 )
+dark_color = Color( 0.507812, 0.507812, 0.507812, 1 )
+border_size = 4
+border_blend = true
+draw_bg = true
+
+[sub_resource type="StyleBoxFlat" id=3]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+bg_color = Color( 0.140625, 0.140625, 0.140625, 1 )
+light_color = Color( 0.566406, 0.566406, 0.566406, 0.508196 )
+dark_color = Color( 0.564706, 0.564706, 0.564706, 0.505882 )
+border_size = 4
+border_blend = true
+draw_bg = true
+
+[sub_resource type="Theme" id=4]
+
+default_font = ExtResource( 3 )
+ToolButton/colors/font_color = Color( 0.878431, 0.878431, 0.878431, 1 )
+ToolButton/colors/font_color_disabled = Color( 0.9, 0.95, 1, 0.3 )
+ToolButton/colors/font_color_hover = Color( 0.941176, 0.941176, 0.941176, 1 )
+ToolButton/colors/font_color_pressed = Color( 1, 1, 1, 1 )
+ToolButton/constants/hseparation = 3
+ToolButton/fonts/font = null
+ToolButton/styles/disabled = null
+ToolButton/styles/focus = null
+ToolButton/styles/hover = SubResource( 2 )
+ToolButton/styles/normal = null
+ToolButton/styles/pressed = SubResource( 3 )
+
+[sub_resource type="GDScript" id=5]
+
+script/source = "extends ToolButton\n\nvar save_location = \"user://score.scr\"\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2(80, OS.get_window_size().y - 150))\n\nfunc _on_back_pressed():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tsavedata.set_value(\"Options\", \"sound\", get_node(\"../sfx_toggle\").sound_value)\n\tsavedata.set_value(\"Options\", \"music\", get_node(\"../music_toggle\").music_value)\n\tsavedata.set_value(\"Options\", \"fullscreen\", get_node(\"../fullscreen_toggle\").fullscreen)\n\tsavedata.set_value(\"Options\", \"controller\", get_node(\"../controller_toggle\").controller)\n\tsavedata.set_value(\"GameJolt\", \"auto_submit\", get_node(\"../submit_scores_toggle\").auto_submit)\n\tsavedata.set_value(\"GameJolt\", \"username\", get_node(\"../score_name\").get_text().replace(\" \", \"_\"))\n\tsavedata.save(save_location)\n\tget_tree().change_scene(\"res://Scenes/MainMenu.tscn\")\n"
+
+[sub_resource type="GDScript" id=6]
+
+script/source = "extends ToolButton\n\nvar save_location = \"user://score.scr\"\nvar music_value\nvar savedata\n\nfunc _ready():\n\tsavedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tmusic_value = savedata.get_value(\"Options\", \"music\")\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tif(music_value):\n\t\tset_text(\"Music: On\")\n\telse:\n\t\tset_text(\"Music: Off\")\n\tset_pos(Vector2((OS.get_window_size().x/2) - 125, 290))\n\nfunc _on_music_toggle_pressed():\n\tmusic_value = not(music_value)\n"
+
+[sub_resource type="GDScript" id=7]
+
+script/source = "extends ToolButton\n\nvar save_location = \"user://score.scr\"\nvar sound_value\nvar savedata\n\nfunc _ready():\n\tsavedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tsound_value = savedata.get_value(\"Options\", \"sound\")\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tif(sound_value):\n\t\tset_text(\"Sound Effects: On\")\n\tif(not(sound_value)):\n\t\tset_text(\"Sound Effects: Off\")\n\tset_pos(Vector2((OS.get_window_size().x/2) - 140, 390))\n\n\nfunc _on_sfx_toggle_pressed():\n\tsound_value = not(sound_value)\n"
+
+[sub_resource type="GDScript" id=8]
+
+script/source = "extends ToolButton\n\nvar save_location = \"user://score.scr\"\nvar auto_submit\nvar savedata\n\nfunc _ready():\n\tsavedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tauto_submit = savedata.get_value(\"GameJolt\", \"auto_submit\")\n\tget_node(\"../score_name\").set_text(savedata.get_value(\"GameJolt\", \"username\"))\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tif(auto_submit):\n\t\tset_text(\"Automatically Submit Scores: On\")\n\tif(not(auto_submit)):\n\t\tset_text(\"Automatically Submit Scores: Off\")\n\tset_pos(Vector2((OS.get_window_size().x/2) - ((get_size().x - get_node(\"../score_name\").get_size().x)/2) + 20, 490))\n\nfunc _on_submit_scores_toggle_pressed():\n\tauto_submit = not(auto_submit)\n"
+
+[sub_resource type="GDScript" id=9]
+
+script/source = "extends ToolButton\n\nvar save_location = \"user://score.scr\"\nvar controller\nvar savedata\n\nfunc _ready():\n\tsavedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tcontroller = savedata.get_value(\"Options\", \"controller\")\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tif(controller):\n\t\tset_text(\"Controller: Enabled\")\n\tif(not(controller)):\n\t\tset_text(\"Controller: Disabled\")\n\tset_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 690))\n\nfunc _on_controller_toggle_pressed():\n\tcontroller = not(controller)\n"
+
+[sub_resource type="GDScript" id=10]
+
+script/source = "extends ToolButton\n\nvar save_location = \"user://score.scr\"\nvar fullscreen\nvar savedata\n\nfunc _ready():\n\tsavedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tfullscreen = savedata.get_value(\"Options\", \"fullscreen\")\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tif(fullscreen):\n\t\tset_text(\"Window Mode: Fullscreen\")\n\tif(not(fullscreen)):\n\t\tset_text(\"Window Mode: Windowed\")\n\tset_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 590))\n\nfunc _on_fullscreen_toggle_pressed():\n\tfullscreen = not(fullscreen)\n"
+
+[sub_resource type="GDScript" id=11]
+
+script/source = "extends LineEdit\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - (get_size().x + get_node(\"../submit_scores_toggle\").get_size().x)/2, 510))"
+
+[node name="Node" type="Node"]
+
+[node name="Sprite" type="Sprite" parent="."]
+
+transform/scale = Vector2( 2, 2 )
+texture = ExtResource( 1 )
+centered = false
+modulate = Color( 0.623529, 0.92549, 0.988235, 1 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="options" type="Label" parent="CanvasLayer"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 528.0
+margin/top = 102.0
+margin/right = 1191.0
+margin/bottom = 203.0
+custom_fonts/font = ExtResource( 2 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+custom_constants/shadow_as_outline = 1
+text = "Options"
+align = 1
+valign = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+script/script = SubResource( 1 )
+
+[node name="back" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 4 )
+margin/left = 83.0
+margin/top = 748.0
+margin/right = 333.0
+margin/bottom = 830.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Back"
+flat = true
+script/script = SubResource( 5 )
+
+[node name="music_toggle" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 4 )
+margin/left = 679.0
+margin/top = 208.0
+margin/right = 929.0
+margin/bottom = 290.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Music: On"
+flat = true
+script/script = SubResource( 6 )
+
+[node name="sfx_toggle" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 4 )
+margin/left = 670.0
+margin/top = 303.0
+margin/right = 952.0
+margin/bottom = 385.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Sound Effects: On"
+flat = true
+script/script = SubResource( 7 )
+
+[node name="submit_scores_toggle" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 4 )
+margin/left = 732.0
+margin/top = 520.0
+margin/right = 1245.0
+margin/bottom = 602.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Automatically Submit Scores: On"
+flat = true
+script/script = SubResource( 8 )
+
+[node name="controller_toggle" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 4 )
+margin/left = 573.0
+margin/top = 731.0
+margin/right = 1002.0
+margin/bottom = 813.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Controller: Enabled"
+flat = true
+script/script = SubResource( 9 )
+
+[node name="fullscreen_toggle" type="ToolButton" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = SubResource( 4 )
+margin/left = 604.0
+margin/top = 618.0
+margin/right = 1029.0
+margin/bottom = 700.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Window Mode: Windowed"
+flat = true
+script/script = SubResource( 10 )
+
+[node name="score_name" type="LineEdit" parent="CanvasLayer"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 461.0
+margin/top = 541.0
+margin/right = 702.0
+margin/bottom = 581.0
+custom_fonts/font = ExtResource( 3 )
+placeholder/text = "Display Name"
+placeholder/alpha = 0.6
+max_length = 13
+focus_mode = 2
+caret/caret_blink = false
+caret/caret_blink_speed = 0.65
+script/script = SubResource( 11 )
+
+[node name="RigidBody2D" parent="." instance=ExtResource( 4 )]
+
+[connection signal="pressed" from="CanvasLayer/back" to="CanvasLayer/back" method="_on_back_pressed"]
+
+[connection signal="pressed" from="CanvasLayer/music_toggle" to="CanvasLayer/music_toggle" method="_on_music_toggle_pressed"]
+
+[connection signal="pressed" from="CanvasLayer/sfx_toggle" to="CanvasLayer/sfx_toggle" method="_on_sfx_toggle_pressed"]
+
+[connection signal="pressed" from="CanvasLayer/submit_scores_toggle" to="CanvasLayer/submit_scores_toggle" method="_on_submit_scores_toggle_pressed"]
+
+[connection signal="pressed" from="CanvasLayer/controller_toggle" to="CanvasLayer/controller_toggle" method="_on_controller_toggle_pressed"]
+
+[connection signal="pressed" from="CanvasLayer/fullscreen_toggle" to="CanvasLayer/fullscreen_toggle" method="_on_fullscreen_toggle_pressed"]
+
+

@@ -1,0 +1,74 @@
+[gd_scene load_steps=3 format=1]
+
+[sub_resource type="CapsuleShape2D" id=1]
+
+custom_solver_bias = 0.0
+radius = 470.543
+height = 667.973
+
+[sub_resource type="GDScript" id=2]
+
+script/source = "extends RigidBody2D\n\nfunc _ready():\n\trandomize()\n\tset_linear_velocity(Vector2(((randi()%2)*2) - 1, ((randi()%2)*2) - 1) * 100)\n\tget_node(\"Timer\").start()\n\t#apply_impulse(Vector2(0, 0), Vector2((randf()*2) - 1, (randf()*2) - 1) * 1000)\n\nfunc _on_Timer_timeout():\n\tset_linear_velocity(Vector2(((randi()%2)*2) - 1, ((randi()%2)*2) - 1) * 100)\n\tget_node(\"Timer\").start()\n"
+
+[node name="RigidBody2D" type="RigidBody2D"]
+
+transform/pos = Vector2( 1653.88, 1560.61 )
+input/pickable = false
+shapes/0/shape = SubResource( 1 )
+shapes/0/transform = Matrix32( -0.000661774, 1, -1, -0.000661774, 0, 0 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+mode = 0
+mass = 1.0
+friction = 0.0
+bounce = 1.0
+gravity_scale = 0.0
+custom_integrator = true
+continuous_cd = 0
+contacts_reported = 0
+contact_monitor = false
+sleeping = false
+can_sleep = true
+velocity/linear = Vector2( 0, 0 )
+velocity/angular = 0.0
+damp_override/linear = -1.0
+damp_override/angular = -1.0
+script/script = SubResource( 2 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+anchor_mode = 1
+rotating = false
+current = true
+zoom = Vector2( 1, 1 )
+limit/left = 0
+limit/top = 0
+limit/right = 3700
+limit/bottom = 3200
+drag_margin/h_enabled = false
+drag_margin/v_enabled = false
+smoothing/enable = false
+smoothing/speed = 5.0
+drag_margin/left = 0.0
+drag_margin/top = 0.0
+drag_margin/right = 0.0
+drag_margin/bottom = 0.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+transform/rot = -90.0379
+shape = SubResource( 1 )
+trigger = false
+_update_shape_index = 0
+
+[node name="Timer" type="Timer" parent="."]
+
+process_mode = 1
+wait_time = 1.0
+one_shot = false
+autostart = false
+
+[connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
+
+

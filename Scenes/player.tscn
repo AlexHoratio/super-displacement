@@ -1,0 +1,169 @@
+[gd_scene load_steps=9 format=1]
+
+[ext_resource path="res://Graphics/player.png" type="Texture" id=1]
+[ext_resource path="res://Sound/shoot.wav" type="Sample" id=2]
+
+[sub_resource type="RectangleShape2D" id=1]
+
+custom_solver_bias = 0.0
+extents = Vector2( 9.86206, 9.69571 )
+
+[sub_resource type="GDScript" id=2]
+
+script/source = "extends RigidBody2D\n\nvar SPEED = 120\nvar shaking = false\nonready var sprite = get_node(\"Sprite\")\nvar save_location = \"user://score.scr\"\nvar number_of_bullets = 0\nvar magnitude_speed = 0\n\nfunc _ready():\n\tset_fixed_process(true)\n\tset_process_input(true)\n\t\nfunc shoot_bullet(pulse_vector):\n\tvar bullet = load(\"res://Scenes/bullet.tscn\").instance()\n\tbullet.pulse_vector = pulse_vector\n\tbullet.set_pos(get_pos())\n\tget_node(\"../../Node\").add_child(bullet)\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tvar sfx_value = savedata.get_value(\"Options\", \"sound\")\n\tif(sfx_value):\n\t\tget_node(\"SamplePlayer2D\").play(\"shoot\")\n\tnumber_of_bullets += 1\n\tshaking = true\n\tget_node(\"Camera2D/shaketimer\").start()\n\tget_node(\"../Node2D/shootpulse\").play(\"shoot\")\n\nfunc _input(event):\n\tif(event.is_action_pressed(\"rt_shoot\")):\n\t\tvar direction = Vector2(Input.get_joy_axis(0, 2), Input.get_joy_axis(0, 5))\n\t\tvar pulse_vector = Vector2(0, 1).rotated(direction.angle())\n\t\tshoot_bullet(pulse_vector)\n\tif(event.type == InputEvent.MOUSE_BUTTON):\n\t\tif(event.button_index == 1 and event.pressed):\n\t\t\tvar click_position = get_node(\"../background\").get_local_mouse_pos() / 2\n\t\t\tvar click_angle = get_angle_to(click_position) + get_rot()\n\t\t\tvar pulse_vector = Vector2(0, 1).rotated(click_angle)\n\t\t\tshoot_bullet(pulse_vector)\n\n\nfunc _fixed_process(delta):\n\tvar up_pressed = Input.is_action_pressed(\"ui_up\")\n\tvar down_pressed = Input.is_action_pressed(\"ui_down\")\n\tvar right_pressed = Input.is_action_pressed(\"ui_right\")\n\tvar left_pressed = Input.is_action_pressed(\"ui_left\")\n\t#var menu_pressed = Input.is_action_pressed(\"open_menu\")\n\tvar movementvector = Vector2(0, 0)\n\tvar torque = 0\n\t\n\t# Movement checks\n\tif(up_pressed):\n\t\ttorque = 100\n\t\tmovementvector.y = -SPEED\n\tif(down_pressed):\n\t\ttorque = -100\n\t\tmovementvector.y = SPEED\n\tif(right_pressed):\n\t\ttorque = 100\n\t\tmovementvector.x = SPEED\n\tif(left_pressed):\n\t\ttorque = -100\n\t\tmovementvector.x = -SPEED\n\tset_applied_torque(torque)\n\tmagnitude_speed = sqrt(get_linear_velocity().y * get_linear_velocity().y + get_linear_velocity().x*get_linear_velocity().x)\n\tif(abs(get_linear_velocity().y) <= 1000 and abs(get_linear_velocity().x) <= 1000):\n\t\tset_applied_force(movementvector)\n\telse:\n\t\tset_applied_force(Vector2(0, 0))\n\t\n\tif(shaking):\n\t\tget_node(\"Camera2D\").set_offset(Vector2(5 - randf()*10, 5 - randf()*10))\n\nfunc _on_shaketimer_timeout():\n\tshaking = false\n"
+
+[sub_resource type="SampleLibrary" id=3]
+
+samples/shoot = { "db":0.0, "pitch":1.0, "sample":ExtResource( 2 ) }
+
+[sub_resource type="RectangleShape2D" id=4]
+
+custom_solver_bias = 0.0
+extents = Vector2( 10.3689, 10.1866 )
+
+[sub_resource type="GDScript" id=5]
+
+script/source = "extends Area2D\n\nfunc _on_Area2D_body_enter( body ):\n\tif(body.is_in_group(\"enemies\")):\n\t\tvar bounce_asset = load(\"res://Scenes/bounce.tscn\")\n\t\tvar bounce = bounce_asset.instance()\n\t\tbounce.set_pos(get_node(\"../../player\").get_pos())\n\t\tget_node(\"../../../Node\").add_child(bounce)\n"
+
+[sub_resource type="GDScript" id=6]
+
+script/source = "extends Sprite\n\nfunc _ready():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(\"user://score.scr\")\n\tif(savedata.get_value(\"Options\", \"controller\") == true):\n\t\tset_fixed_process(true)\n\telse:\n\t\tset_hidden(true)\n\t\nfunc _fixed_process(delta):\n\tvar direction = Vector2(Input.get_joy_axis(0, 2), Input.get_joy_axis(0, 5))\n\tvar degrees = (direction).angle()*180/PI\n\tset_rotd(degrees - get_node(\"../../player\").get_rotd())\n\tif(direction.length() < 0.1):\n\t\tset_hidden(true)\n\telse:\n\t\tset_hidden(false)"
+
+[node name="player" type="RigidBody2D"]
+
+input/pickable = false
+shapes/0/shape = SubResource( 1 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, 0, 0 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+mode = 0
+mass = 0.1
+friction = 0.6
+bounce = 0.9
+gravity_scale = 0.0
+custom_integrator = false
+continuous_cd = 0
+contacts_reported = 0
+contact_monitor = false
+sleeping = false
+can_sleep = true
+velocity/linear = Vector2( 0, 0 )
+velocity/angular = 0.0
+damp_override/linear = -1.0
+damp_override/angular = -1.0
+script/script = SubResource( 2 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+shape = SubResource( 1 )
+trigger = false
+_update_shape_index = 0
+
+[node name="Sprite" type="Sprite" parent="."]
+
+transform/scale = Vector2( 0.15, 0.15 )
+texture = ExtResource( 1 )
+modulate = Color( 0, 0, 0, 1 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+anchor_mode = 1
+rotating = false
+current = true
+zoom = Vector2( 0.5, 0.5 )
+limit/left = 0
+limit/top = 0
+limit/right = 1850
+limit/bottom = 1600
+drag_margin/h_enabled = true
+drag_margin/v_enabled = true
+smoothing/enable = true
+smoothing/speed = 10.0
+drag_margin/left = 0.2
+drag_margin/top = 0.2
+drag_margin/right = 0.2
+drag_margin/bottom = 0.2
+
+[node name="shaketimer" type="Timer" parent="Camera2D"]
+
+process_mode = 1
+wait_time = 0.1
+one_shot = false
+autostart = false
+
+[node name="SamplePlayer2D" type="SamplePlayer" parent="."]
+
+config/polyphony = 1
+config/samples = SubResource( 3 )
+default/volume_db = -7.0
+default/pitch_scale = 1.0
+default/pan = 0.0
+default/depth = 0.0
+default/height = 0.0
+default/filter/type = 0
+default/filter/cutoff = 5000.0
+default/filter/resonance = 1.0
+default/filter/gain = 1.0
+default/reverb_room = 2
+default/reverb_send = 0.0
+default/chorus_send = 0.0
+
+[node name="Particles2D" type="Particles2D" parent="."]
+
+visibility/behind_parent = true
+config/amount = 16
+config/lifetime = 2.0
+config/local_space = false
+params/direction = 0.0
+params/spread = 180.0
+params/linear_velocity = 20.0
+params/spin_velocity = 0.0
+params/orbit_velocity = 0.0
+params/gravity_direction = 0.0
+params/gravity_strength = 0.0
+params/radial_accel = 0.0
+params/tangential_accel = 0.0
+params/damping = 0.0
+params/initial_angle = 0.0
+params/initial_size = 1.0
+params/final_size = 1.0
+params/hue_variation = 0.0
+params/anim_speed_scale = 1.0
+params/anim_initial_pos = 0.0
+randomness/hue_variation = 1.0
+color/color = Color( 0.863281, 0.993591, 1, 1 )
+
+[node name="Area2D" type="Area2D" parent="."]
+
+input/pickable = true
+shapes/0/shape = SubResource( 4 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, 0, 0 )
+shapes/0/trigger = false
+gravity_vec = Vector2( 0, 1 )
+gravity = 98.0
+linear_damp = 0.1
+angular_damp = 1.0
+script/script = SubResource( 5 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+
+shape = SubResource( 4 )
+trigger = false
+_update_shape_index = 0
+
+[node name="controlleraim" type="Sprite" parent="."]
+
+visibility/opacity = 0.2
+transform/pos = Vector2( -0.962818, 0.00290346 )
+transform/scale = Vector2( 0.016161, 1 )
+texture = ExtResource( 1 )
+centered = false
+modulate = Color( 0, 0, 0, 1 )
+script/script = SubResource( 6 )
+
+[connection signal="timeout" from="Camera2D/shaketimer" to="." method="_on_shaketimer_timeout"]
+
+[connection signal="body_enter" from="Area2D" to="Area2D" method="_on_Area2D_body_enter"]
+
+

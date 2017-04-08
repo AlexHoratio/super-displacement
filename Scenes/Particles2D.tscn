@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=1]
+
+[sub_resource type="ColorRamp" id=1]
+
+offsets = FloatArray( 0, 1 )
+colors = ColorArray( 1, 0, 0, 1, 0, 0, 0, 1 )
+
+[sub_resource type="GDScript" id=2]
+
+script/source = "\n\nfunc _on_Timer_timeout():\n\tpass # replace with function body\n"
+
+[node name="Particles2D" type="Particles2D"]
+
+config/amount = 589
+config/lifetime = 2.0
+params/direction = 0.0
+params/spread = 180.0
+params/linear_velocity = 20.0
+params/spin_velocity = 0.0
+params/orbit_velocity = 0.0
+params/gravity_direction = 0.0
+params/gravity_strength = 0.0
+params/radial_accel = 0.0
+params/tangential_accel = 0.0
+params/damping = 0.0
+params/initial_angle = 0.0
+params/initial_size = 1.0
+params/final_size = 1.0
+params/hue_variation = 0.0
+params/anim_speed_scale = 1.0
+params/anim_initial_pos = 0.0
+randomness/initial_size = 5.0
+randomness/final_size = 0.5
+color/color = Color( 1, 0, 0, 1 )
+color/color_ramp = SubResource( 1 )
+script/script = SubResource( 2 )
+
+[node name="emitter" type="Timer" parent="."]
+
+process_mode = 1
+wait_time = 0.2
+one_shot = false
+autostart = false
+
+[connection signal="timeout" from="emitter" to="." method="_on_Timer_timeout"]
+
+
