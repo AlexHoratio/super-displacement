@@ -5,21 +5,41 @@
 [sub_resource type="ColorRamp" id=1]
 
 offsets = FloatArray( 0, 1 )
-colors = ColorArray( 1, 0, 0, 1, 0, 0, 0, 1 )
+colors = ColorArray( 0.980695, 0, 0, 1, 0, 0, 0, 1 )
 
 [sub_resource type="GDScript" id=2]
 
-script/source = "extends Particles2D\n\nfunc _ready():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(\"user://score.scr\")\n\tvar sfx_value = savedata.get_value(\"Options\", \"sound\")\n\tif(sfx_value):\n\t\tget_node(\"SamplePlayer\").play(\"explosion\")\n\nfunc _on_Timer_timeout():\n\tset_emitting(false)\n\nfunc _on_killer_timeout():\n\tqueue_free()\n"
+script/source = "extends Particles2D
+
+func _ready():
+	var savedata = ConfigFile.new()
+	savedata.load(\"user://score.scr\")
+	var sfx_value = savedata.get_value(\"Options\", \"sound\")
+	if(sfx_value):
+		get_node(\"SamplePlayer\").play(\"explosion\")
+
+func _on_Timer_timeout():
+	set_emitting(false)
+
+func _on_killer_timeout():
+	queue_free()
+"
 
 [sub_resource type="SampleLibrary" id=3]
 
-samples/explosion = { "db":0.0, "pitch":1.0, "sample":ExtResource( 1 ) }
+samples/explosion = {
+"db": 0.0,
+"pitch": 1.0,
+"priority": 0,
+"sample": ExtResource( 1 )
+}
 
 [node name="explosion" type="Particles2D"]
 
 transform/scale = Vector2( 4, 4 )
 config/amount = 589
 config/lifetime = 1.7
+config/process_mode = 1
 params/direction = 0.0
 params/spread = 180.0
 params/linear_velocity = 70.0
@@ -45,14 +65,14 @@ script/script = SubResource( 2 )
 [node name="emitter" type="Timer" parent="."]
 
 process_mode = 1
-wait_time = 0.2
+wait_time = 0.15
 one_shot = false
 autostart = true
 
 [node name="killer" type="Timer" parent="."]
 
 process_mode = 1
-wait_time = 2.2
+wait_time = 2.1
 one_shot = false
 autostart = true
 

@@ -7,12 +7,17 @@ colors = ColorArray( 1, 0, 0, 1, 0, 0, 0, 1 )
 
 [sub_resource type="GDScript" id=2]
 
-script/source = "\n\nfunc _on_Timer_timeout():\n\tpass # replace with function body\n"
+script/source = "
+
+func _on_Timer_timeout():
+	pass # replace with function body
+"
 
 [node name="Particles2D" type="Particles2D"]
 
 config/amount = 589
 config/lifetime = 2.0
+config/process_mode = 1
 params/direction = 0.0
 params/spread = 180.0
 params/linear_velocity = 20.0

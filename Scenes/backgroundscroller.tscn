@@ -8,7 +8,18 @@ height = 667.973
 
 [sub_resource type="GDScript" id=2]
 
-script/source = "extends RigidBody2D\n\nfunc _ready():\n\trandomize()\n\tset_linear_velocity(Vector2(((randi()%2)*2) - 1, ((randi()%2)*2) - 1) * 100)\n\tget_node(\"Timer\").start()\n\t#apply_impulse(Vector2(0, 0), Vector2((randf()*2) - 1, (randf()*2) - 1) * 1000)\n\nfunc _on_Timer_timeout():\n\tset_linear_velocity(Vector2(((randi()%2)*2) - 1, ((randi()%2)*2) - 1) * 100)\n\tget_node(\"Timer\").start()\n"
+script/source = "extends RigidBody2D
+
+func _ready():
+	randomize()
+	set_linear_velocity(Vector2(((randi()%2)*2) - 1, ((randi()%2)*2) - 1) * 100)
+	get_node(\"Timer\").start()
+	#apply_impulse(Vector2(0, 0), Vector2((randf()*2) - 1, (randf()*2) - 1) * 1000)
+
+func _on_Timer_timeout():
+	set_linear_velocity(Vector2(((randi()%2)*2) - 1, ((randi()%2)*2) - 1) * 100)
+	get_node(\"Timer\").start()
+"
 
 [node name="RigidBody2D" type="RigidBody2D"]
 

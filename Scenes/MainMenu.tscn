@@ -1,12 +1,13 @@
-[gd_scene load_steps=12 format=1]
+[gd_scene load_steps=13 format=1]
 
 [ext_resource path="res://Scripts/MainMenu.gd" type="Script" id=1]
 [ext_resource path="res://addons/gamejolt_api/gjapi.gd" type="Script" id=2]
 [ext_resource path="res://addons/gamejolt_api/gj_icon.png" type="Texture" id=3]
 [ext_resource path="res://Graphics/grass.png" type="Texture" id=4]
 [ext_resource path="res://Graphics/pixelfont.fnt" type="BitmapFont" id=5]
-[ext_resource path="res://Graphics/titlefont.fnt" type="BitmapFont" id=6]
-[ext_resource path="res://Scenes/backgroundscroller.tscn" type="PackedScene" id=7]
+[ext_resource path="res://Graphics/new_score_font.fnt" type="BitmapFont" id=6]
+[ext_resource path="res://Graphics/titlefont.fnt" type="BitmapFont" id=7]
+[ext_resource path="res://Scenes/backgroundscroller.tscn" type="PackedScene" id=8]
 
 [sub_resource type="StyleBoxFlat" id=1]
 
@@ -14,24 +15,24 @@ content_margin/left = -1.0
 content_margin/right = -1.0
 content_margin/top = -1.0
 content_margin/bottom = -1.0
-bg_color = Color( 0.230469, 0.230469, 0.230469, 1 )
-light_color = Color( 0.609375, 0.609375, 0.609375, 0.633882 )
-dark_color = Color( 0.507812, 0.507812, 0.507812, 1 )
+bg_color = Color( 0, 0, 0, 0.322431 )
+light_color = Color( 0.294118, 0.294118, 0.294118, 1 )
+dark_color = Color( 0.296875, 0.296875, 0.296875, 1 )
 border_size = 4
-border_blend = true
-draw_bg = true
+border_blend = false
+draw_bg = false
 
-[sub_resource type="StyleBoxFlat" id=2]
+[sub_resource type="StyleBoxFlat" id=5]
 
 content_margin/left = -1.0
 content_margin/right = -1.0
 content_margin/top = -1.0
 content_margin/bottom = -1.0
-bg_color = Color( 0.140625, 0.140625, 0.140625, 1 )
-light_color = Color( 0.566406, 0.566406, 0.566406, 0.508196 )
-dark_color = Color( 0.564706, 0.564706, 0.564706, 0.505882 )
+bg_color = Color( 0, 0, 0, 0.590157 )
+light_color = Color( 0, 0, 0, 1 )
+dark_color = Color( 0, 0, 0, 1 )
 border_size = 4
-border_blend = true
+border_blend = false
 draw_bg = true
 
 [sub_resource type="Theme" id=3]
@@ -47,11 +48,10 @@ ToolButton/styles/disabled = null
 ToolButton/styles/focus = null
 ToolButton/styles/hover = SubResource( 1 )
 ToolButton/styles/normal = null
-ToolButton/styles/pressed = SubResource( 2 )
+ToolButton/styles/pressed = SubResource( 5 )
 
 [sub_resource type="Animation" id=4]
 
-resource/name = "slowpulse"
 length = 4.0
 loop = true
 step = 0.1
@@ -59,7 +59,12 @@ tracks/0/type = "value"
 tracks/0/path = NodePath(".:rect/scale")
 tracks/0/interp = 2
 tracks/0/imported = false
-tracks/0/keys = { "times":FloatArray( 0, 2 ), "transitions":FloatArray( 1, 1 ), "update":0, "values":[ Vector2( 1, 1 ), Vector2( 1.1, 1.1 ) ] }
+tracks/0/keys = {
+"times": FloatArray( 0, 2 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1.1, 1.1 ) ]
+}
 
 [node name="TreeRoot" type="Node"]
 
@@ -71,7 +76,9 @@ use_threads = false
 body_size_limit = -1
 max_redirects = 8
 script/script = ExtResource( 2 )
-__meta__ = { "_editor_icon":ExtResource( 3 ) }
+__meta__ = {
+"_editor_icon": ExtResource( 3 )
+}
 private_key = "019361378474be33e306263e790331f2"
 game_id = "244666"
 
@@ -80,7 +87,7 @@ game_id = "244666"
 transform/scale = Vector2( 2, 2 )
 texture = ExtResource( 4 )
 centered = false
-modulate = Color( 0.623529, 0.92549, 0.988235, 1 )
+modulate = Color( 0.449219, 0, 0, 1 )
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -104,7 +111,7 @@ margin/left = 151.0
 margin/top = 161.0
 margin/right = -99.0
 margin/bottom = 79.0
-custom_fonts/font = ExtResource( 5 )
+custom_fonts/font = ExtResource( 6 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 toggle_mode = false
 click_on_press = true
@@ -128,7 +135,7 @@ margin/left = 143.0
 margin/top = 51.0
 margin/right = -107.0
 margin/bottom = -31.0
-custom_fonts/font = ExtResource( 5 )
+custom_fonts/font = ExtResource( 6 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 toggle_mode = false
 click_on_press = true
@@ -152,7 +159,7 @@ margin/left = 148.0
 margin/top = -163.0
 margin/right = -111.0
 margin/bottom = -245.0
-custom_fonts/font = ExtResource( 5 )
+custom_fonts/font = ExtResource( 6 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 toggle_mode = false
 click_on_press = true
@@ -172,6 +179,7 @@ margin/left = 659.0
 margin/top = 720.0
 margin/right = 909.0
 margin/bottom = 802.0
+custom_fonts/font = ExtResource( 6 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 toggle_mode = false
 click_on_press = true
@@ -194,7 +202,7 @@ margin/left = 426.0
 margin/top = 376.0
 margin/right = -442.0
 margin/bottom = 294.0
-custom_fonts/font = ExtResource( 6 )
+custom_fonts/font = ExtResource( 7 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
 custom_constants/shadow_offset_x = 2
 custom_constants/shadow_offset_y = 2
@@ -246,13 +254,13 @@ playback/speed = 1.0
 blend_times = [  ]
 autoplay = "slowpulse"
 
-[node name="RigidBody2D" parent="." instance=ExtResource( 7 )]
+[node name="RigidBody2D" parent="." instance=ExtResource( 8 )]
 
 [connection signal="released" from="CanvasLayer/StartButton" to="." method="_on_StartButton_released"]
 
 [connection signal="released" from="CanvasLayer/OptionButton" to="." method="_on_OptionButton_released"]
 
-[connection signal="pressed" from="CanvasLayer/HighScoreButton" to="." method="_on_HighScoreButton_pressed"]
+[connection signal="released" from="CanvasLayer/HighScoreButton" to="." method="_on_HighScoreButton_released"]
 
 [connection signal="released" from="CanvasLayer/QuitButton" to="." method="_on_QuitButton_released"]
 

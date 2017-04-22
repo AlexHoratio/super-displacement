@@ -11,19 +11,131 @@
 
 [sub_resource type="GDScript" id=1]
 
-script/source = "extends Node\n\nvar CHANCE_TO_SPAWN = 30\nvar score_location = \"user://score.scr\"\nvar difficulty = 1\nvar total = 0\n\nonready var default_enemy = load(\"res://Scenes/enemy.tscn\")\n\nfunc _ready():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(score_location)\n\tvar signed_in = savedata.get_value(\"GameJolt\", \"signed_in\")\n\tInput.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)\n\tif(signed_in):\n\t\tget_node(\"GameJoltAPI\").auth_user(savedata.get_value(\"GameJolt\", \"token\"), savedata.get_value(\"GameJolt\", \"username\"))\n\trandomize()\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tvar mouse_pos = get_viewport().get_mouse_pos()\n\tif(mouse_pos.x > OS.get_window_size().x):\n\t\tmouse_pos.x = OS.get_window_size().x\n\telif(mouse_pos.x < 0):\n\t\tmouse_pos.x = 0\n\tif(mouse_pos.y > OS.get_window_size().y):\n\t\tmouse_pos.y = OS.get_window_size().y\n\telif(mouse_pos.y < 0):\n\t\tmouse_pos.y = 0\n\tget_viewport().warp_mouse(mouse_pos)\n\tif(randi()%CHANCE_TO_SPAWN == 0 and get_tree().get_nodes_in_group(\"enemies\").size() <= 30):\n\t\tvar enemy = default_enemy.instance()\n\t\tadd_child(enemy)\n\t\tenemy.set_pos(Vector2(40+randi()%1800, 40+randi()%1550))\n\nfunc _on_lose_zone_body_enter( body ):\n\tif(body == get_node(\"player\")):\n\t\tInput.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)\n\t\tget_node(\"you_lose\").play(\"lose\")\n\t\tget_tree().set_pause(true)\n\nfunc _on_you_lose_finished():\n\tvar scoresFile = ConfigFile.new()\n\tscoresFile.load(score_location)\n\tif(scoresFile.get_value(\"Score\",\"high_score\") != null):\n\t\tif(get_node(\"CanvasLayer/score\").score > scoresFile.get_value(\"Score\",\"high_score\")):\n\t\t\tscoresFile.set_value(\"Score\",\"high_score\",get_node(\"CanvasLayer/score\").score)\n\telse:\n\t\tscoresFile.set_value(\"Score\",\"high_score\",get_node(\"CanvasLayer/score\").score)\n\tscoresFile.set_value(\"Score\",\"bullets\",get_node(\"player\").number_of_bullets)\n\tscoresFile.set_value(\"Score\",\"latest_score\",get_node(\"CanvasLayer/score\").score)\n\tscoresFile.set_value(\"Score\",\"enemies_killed\",get_node(\"CanvasLayer/score\").enemies_killed)\n\tscoresFile.save(score_location)\n\tget_tree().change_scene(\"res://Scenes/gameover.tscn\")\n"
+script/source = "extends Node
 
-[sub_resource type="GDScript" id=20]
+var CHANCE_TO_SPAWN = 30
+var score_location = \"user://score.scr\"
+var difficulty = 1
+var total = 0
 
-script/source = "extends Label\n\nvar score = 0\nvar enemies_killed = 0\nvar high_score\n\nfunc _ready():\n\tvar scoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\thigh_score = scoreFile.get_value(\"Score\", \"high_score\")\n\tif(high_score == null):\n\t\thigh_score = 0\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tif(score<1000):\n\t\tget_node(\"../../../Node\").difficulty = 1\n\telif(score<2000):\n\t\tget_node(\"../../../Node\").difficulty = 1.5\n\telif(score<3000): \n\t\tget_node(\"../../../Node\").difficulty = 2\n\telse:\n\t\tget_node(\"../../../Node\").difficulty = 2.5\n\tset_pos(Vector2((OS.get_window_size().x / 2) - 100, 50))\n\tset_text(\"Highscore: \" + str(high_score) + \"\\n\" + \"Score: \" + str(score))\n\tif(score>high_score):\n\t\tset_text(get_text() + \"!\")"
+onready var default_enemy = load(\"res://Scenes/enemy.tscn\")
+
+func _ready():
+	var savedata = ConfigFile.new()
+	savedata.load(score_location)
+	var signed_in = savedata.get_value(\"GameJolt\", \"signed_in\")
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	if(signed_in):
+		get_node(\"GameJoltAPI\").auth_user(savedata.get_value(\"GameJolt\", \"token\"), savedata.get_value(\"GameJolt\", \"username\"))
+	randomize()
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	var mouse_pos = get_viewport().get_mouse_pos()
+	if(mouse_pos.x > OS.get_window_size().x):
+		mouse_pos.x = OS.get_window_size().x
+	elif(mouse_pos.x < 0):
+		mouse_pos.x = 0
+	if(mouse_pos.y > OS.get_window_size().y):
+		mouse_pos.y = OS.get_window_size().y
+	elif(mouse_pos.y < 0):
+		mouse_pos.y = 0
+	get_viewport().warp_mouse(mouse_pos)
+	if(randi()%CHANCE_TO_SPAWN == 0 and get_tree().get_nodes_in_group(\"enemies\").size() <= 30):
+		var enemy = default_enemy.instance()
+		add_child(enemy)
+		enemy.set_pos(Vector2(40+randi()%1800, 40+randi()%1550))
+
+func _on_lose_zone_body_enter( body ):
+	if(body == get_node(\"player\")):
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+		get_node(\"you_lose\").play(\"lose\")
+		get_tree().set_pause(true)
+
+func _on_you_lose_finished():
+	var scoresFile = ConfigFile.new()
+	scoresFile.load(score_location)
+	if(scoresFile.get_value(\"Score\",\"high_score\") != null):
+		if(get_node(\"CanvasLayer/score\").score > scoresFile.get_value(\"Score\",\"high_score\")):
+			scoresFile.set_value(\"Score\",\"high_score\",get_node(\"CanvasLayer/score\").score)
+	else:
+		scoresFile.set_value(\"Score\",\"high_score\",get_node(\"CanvasLayer/score\").score)
+	scoresFile.set_value(\"Score\",\"bullets\",get_node(\"player\").number_of_bullets)
+	scoresFile.set_value(\"Score\",\"latest_score\",get_node(\"CanvasLayer/score\").score)
+	scoresFile.set_value(\"Score\",\"enemies_killed\",get_node(\"CanvasLayer/score\").enemies_killed)
+	scoresFile.save(score_location)
+	get_tree().change_scene(\"res://Scenes/gameover.tscn\")
+"
 
 [sub_resource type="GDScript" id=2]
 
-script/source = "extends Label\n\nvar time = 0\nvar enemies_killed = 0\nvar most_killed\nvar delta_total = 0\nvar scoreFile\n\nfunc _ready():\n\tscoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tmost_killed = scoreFile.get_value(\"Score\", \"most_killed\")\n\tif(most_killed == null):\n\t\tmost_killed = 0\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tenemies_killed = get_node(\"../score\").enemies_killed\n\tdelta_total += delta\n\tif(delta_total>=1):\n\t\tdelta_total = 0\n\t\ttime += 1\n\tif(enemies_killed<15):\n\t\tget_node(\"../../../Node\").difficulty = 1\n\telif(enemies_killed<30):\n\t\tget_node(\"../../../Node\").difficulty = 1.5\n\telif(enemies_killed<45): \n\t\tget_node(\"../../../Node\").difficulty = 2\n\telse:\n\t\tget_node(\"../../../Node\").difficulty = 2.5\n\tset_pos(Vector2((OS.get_window_size().x / 2) - 100, 50))\n\tset_text(\"Best Time: \" + str(most_killed) + \"\\n\" + \"Time: \" + str(enemies_killed))\n\tif(enemies_killed>most_killed):\n\t\tset_text(get_text() + \"!\")"
+script/source = "extends Label
 
-[sub_resource type="Animation" id=3]
+var score = 0
+var enemies_killed = 0
+var high_score
 
-resource/name = "harder"
+func _ready():
+	var scoreFile = ConfigFile.new()
+	scoreFile.load(\"user://score.scr\")
+	high_score = scoreFile.get_value(\"Score\", \"high_score\")
+	if(high_score == null):
+		high_score = 0
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	if(score<1000):
+		get_node(\"../../../Node\").difficulty = 1
+	elif(score<2000):
+		get_node(\"../../../Node\").difficulty = 1.5
+	elif(score<3000): 
+		get_node(\"../../../Node\").difficulty = 2
+	else:
+		get_node(\"../../../Node\").difficulty = 2.5
+	set_pos(Vector2((OS.get_window_size().x / 2) - 100, 50))
+	set_text(\"Highscore: \" + str(high_score) + \"\\n\" + \"Score: \" + str(score))
+	if(score>high_score):
+		set_text(get_text() + \"!\")"
+
+[sub_resource type="GDScript" id=3]
+
+script/source = "extends Label
+
+var time = 0
+var enemies_killed = 0
+var most_killed
+var delta_total = 0
+var scoreFile
+
+func _ready():
+	scoreFile = ConfigFile.new()
+	scoreFile.load(\"user://score.scr\")
+	most_killed = scoreFile.get_value(\"Score\", \"most_killed\")
+	if(most_killed == null):
+		most_killed = 0
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	enemies_killed = get_node(\"../score\").enemies_killed
+	delta_total += delta
+	if(delta_total>=1):
+		delta_total = 0
+		time += 1
+	if(enemies_killed<15):
+		get_node(\"../../../Node\").difficulty = 1
+	elif(enemies_killed<30):
+		get_node(\"../../../Node\").difficulty = 1.5
+	elif(enemies_killed<45): 
+		get_node(\"../../../Node\").difficulty = 2
+	else:
+		get_node(\"../../../Node\").difficulty = 2.5
+	set_pos(Vector2((OS.get_window_size().x / 2) - 100, 50))
+	set_text(\"Best Time: \" + str(most_killed) + \"\\n\" + \"Time: \" + str(enemies_killed))
+	if(enemies_killed>most_killed):
+		set_text(get_text() + \"!\")"
+
+[sub_resource type="Animation" id=4]
+
 length = 1.0
 loop = false
 step = 0.1
@@ -31,34 +143,78 @@ tracks/0/type = "value"
 tracks/0/path = NodePath("Node2D/Label:text")
 tracks/0/interp = 1
 tracks/0/imported = false
-tracks/0/keys = { "times":FloatArray( 0 ), "transitions":FloatArray( 1 ), "update":1, "values":[ "Harder!" ] }
+tracks/0/keys = {
+"times": FloatArray( 0 ),
+"transitions": FloatArray( 1 ),
+"update": 1,
+"values": [ "Harder!" ]
+}
 tracks/1/type = "value"
 tracks/1/path = NodePath("Node2D/Label:visibility/visible")
 tracks/1/interp = 1
 tracks/1/imported = false
-tracks/1/keys = { "times":FloatArray( 0, 0.5 ), "transitions":FloatArray( 1, 1 ), "update":1, "values":[ true, false ] }
+tracks/1/keys = {
+"times": FloatArray( 0, 0.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
 tracks/2/type = "value"
 tracks/2/path = NodePath("Node2D/Label:custom_colors/font_color")
 tracks/2/interp = 2
 tracks/2/imported = false
-tracks/2/keys = { "times":FloatArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5 ), "transitions":FloatArray( 1, 1, 1, 1, 1, 1 ), "update":0, "values":[ Color( 1, 1, 1, 1 ), Color( 1, 0, 0, 1 ), Color( 0, 1, 0.507812, 1 ), Color( 0.470062, 0.410156, 1, 1 ), Color( 0.945312, 1, 0, 1 ), Color( 0.921875, 0, 1, 1 ) ] }
+tracks/2/keys = {
+"times": FloatArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5 ),
+"transitions": FloatArray( 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 0, 0, 1 ), Color( 0, 1, 0.507812, 1 ), Color( 0.470062, 0.410156, 1, 1 ), Color( 0.945312, 1, 0, 1 ), Color( 0.921875, 0, 1, 1 ) ]
+}
 tracks/3/type = "value"
 tracks/3/path = NodePath("Node2D/Label:rect/pos")
 tracks/3/interp = 2
 tracks/3/imported = false
-tracks/3/keys = { "times":FloatArray( 0, 0.5 ), "transitions":FloatArray( 1, 1 ), "update":0, "values":[ Vector2( 0, 50 ), Vector2( 0, 0 ) ] }
-
-[sub_resource type="GDScript" id=4]
-
-script/source = "extends Node2D\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x / 2) - (get_node(\"Label\").get_size().x/2), 250))"
+tracks/3/keys = {
+"times": FloatArray( 0, 0.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 50 ), Vector2( 0, 0 ) ]
+}
 
 [sub_resource type="GDScript" id=5]
 
-script/source = "extends Label\n\nfunc _ready():\n\tset_fixed_process(true)\n\tset_process_input(true)\n\t\nfunc _input(event):\n\tif(event.type == InputEvent.KEY):\n\t\tif(event.scancode == KEY_ESCAPE and event.is_pressed()):\n\t\t\tset_hidden(is_visible())\n\t\t\tget_tree().set_pause(not(get_tree().is_paused()))\n\t\t\tif(get_tree().is_paused()):\n\t\t\t\tInput.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)\n\t\t\telse: \n\t\t\t\tInput.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)\n\t#if(Input.is_action_pressed(\"pause\")):\n\t#\tget_tree().set_pause(not(get_tree().is_paused()))\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2(OS.get_window_size().x/2 - get_size().x/2, 625))"
+script/source = "extends Node2D
 
-[sub_resource type="Animation" id=6]
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x / 2) - (get_node(\"Label\").get_size().x/2), 250))"
 
-resource/name = "blink"
+[sub_resource type="GDScript" id=6]
+
+script/source = "extends Label
+
+func _ready():
+	set_fixed_process(true)
+	set_process_input(true)
+	
+func _input(event):
+	if(event.type == InputEvent.KEY):
+		if(event.scancode == KEY_ESCAPE and event.is_pressed()):
+			set_hidden(is_visible())
+			get_tree().set_pause(not(get_tree().is_paused()))
+			if(get_tree().is_paused()):
+				Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+			else: 
+				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	#if(Input.is_action_pressed(\"pause\")):
+	#	get_tree().set_pause(not(get_tree().is_paused()))
+	
+func _fixed_process(delta):
+	set_pos(Vector2(OS.get_window_size().x/2 - get_size().x/2, 625))"
+
+[sub_resource type="Animation" id=7]
+
 length = 1.0
 loop = true
 step = 0.1
@@ -66,39 +222,45 @@ tracks/0/type = "value"
 tracks/0/path = NodePath(".:visibility/opacity")
 tracks/0/interp = 1
 tracks/0/imported = false
-tracks/0/keys = { "times":FloatArray( 0, 0.5 ), "transitions":FloatArray( 1, 1 ), "update":1, "values":[ 1.0, 0.0 ] }
+tracks/0/keys = {
+"times": FloatArray( 0, 0.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 1,
+"values": [ 1.0, 0.0 ]
+}
 
-[sub_resource type="GDScript" id=7]
+[sub_resource type="GDScript" id=8]
 
-script/source = "extends Label\n\nvar multiplier_value = 1"
+script/source = "extends Label
 
-[sub_resource type="SegmentShape2D" id=8]
-
-custom_solver_bias = 0.0
-a = Vector2( 0, 0 )
-b = Vector2( 3677, -3 )
+var multiplier_value = 1"
 
 [sub_resource type="SegmentShape2D" id=9]
 
 custom_solver_bias = 0.0
 a = Vector2( 0, 0 )
-b = Vector2( 0, 3177 )
+b = Vector2( 3677, -3 )
 
 [sub_resource type="SegmentShape2D" id=10]
 
 custom_solver_bias = 0.0
-a = Vector2( 3677, 3177 )
+a = Vector2( 0, 0 )
 b = Vector2( 0, 3177 )
 
 [sub_resource type="SegmentShape2D" id=11]
 
 custom_solver_bias = 0.0
 a = Vector2( 3677, 3177 )
+b = Vector2( 0, 3177 )
+
+[sub_resource type="SegmentShape2D" id=12]
+
+custom_solver_bias = 0.0
+a = Vector2( 3677, 3177 )
 b = Vector2( 3677, 0 )
 
-[sub_resource type="Animation" id=12]
+[sub_resource type="Animation" id=13]
 
-resource/name = "modulate"
 length = 300.0
 loop = true
 step = 0.1
@@ -106,19 +268,24 @@ tracks/0/type = "value"
 tracks/0/path = NodePath("background:modulate")
 tracks/0/interp = 2
 tracks/0/imported = false
-tracks/0/keys = { "times":FloatArray( 0, 30, 60, 90, 120, 150, 180, 210, 240, 270 ), "transitions":FloatArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ), "update":0, "values":[ Color( 0.625397, 0.928746, 0.988281, 1 ), Color( 0.625397, 0.988281, 0.699108, 1 ), Color( 0.778481, 0.981666, 0.625397, 1 ), Color( 0.894223, 0.975051, 0.670757, 1 ), Color( 0.968436, 0.869874, 0.716118, 1 ), Color( 0.911263, 0.761478, 0.761478, 1 ), Color( 0.85409, 0.794932, 0.835141, 1 ), Color( 0.849517, 0.796916, 0.873426, 1 ), Color( 0.788714, 0.77481, 0.911711, 1 ), Color( 0.707055, 0.851778, 0.949996, 1 ) ] }
-
-[sub_resource type="RectangleShape2D" id=13]
-
-custom_solver_bias = 0.0
-extents = Vector2( 927, 1 )
+tracks/0/keys = {
+"times": FloatArray( 0, 30, 60, 90, 120, 150, 180, 210, 240, 270 ),
+"transitions": FloatArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 0.625397, 0.928746, 0.988281, 1 ), Color( 0.625397, 0.988281, 0.699108, 1 ), Color( 0.778481, 0.981666, 0.625397, 1 ), Color( 0.894223, 0.975051, 0.670757, 1 ), Color( 0.968436, 0.869874, 0.716118, 1 ), Color( 0.911263, 0.761478, 0.761478, 1 ), Color( 0.85409, 0.794932, 0.835141, 1 ), Color( 0.849517, 0.796916, 0.873426, 1 ), Color( 0.788714, 0.77481, 0.911711, 1 ), Color( 0.707055, 0.851778, 0.949996, 1 ) ]
+}
 
 [sub_resource type="RectangleShape2D" id=14]
 
 custom_solver_bias = 0.0
+extents = Vector2( 927, 1 )
+
+[sub_resource type="RectangleShape2D" id=15]
+
+custom_solver_bias = 0.0
 extents = Vector2( 802.885, 1 )
 
-[sub_resource type="Animation" id=15]
+[sub_resource type="Animation" id=16]
 
 length = 1.5
 loop = false
@@ -127,35 +294,91 @@ tracks/0/type = "value"
 tracks/0/path = NodePath("CanvasLayer/blackmask:visibility/opacity")
 tracks/0/interp = 2
 tracks/0/imported = false
-tracks/0/keys = { "times":FloatArray( 0, 1.5 ), "transitions":FloatArray( 1, 1 ), "update":0, "values":[ 0.0, 1.0 ] }
+tracks/0/keys = {
+"times": FloatArray( 0, 1.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, 1.0 ]
+}
 tracks/1/type = "value"
 tracks/1/path = NodePath("StreamPlayer:stream/volume_db")
 tracks/1/interp = 1
 tracks/1/imported = false
-tracks/1/keys = { "times":FloatArray( 0, 1.5 ), "transitions":FloatArray( 1, 1 ), "update":0, "values":[ 0.0, -80.0 ] }
+tracks/1/keys = {
+"times": FloatArray( 0, 1.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, -80.0 ]
+}
 tracks/2/type = "value"
 tracks/2/path = NodePath("player:transform/scale")
 tracks/2/interp = 2
 tracks/2/imported = false
-tracks/2/keys = { "times":FloatArray( 0, 0.2, 0.7, 1.2 ), "transitions":FloatArray( 1, 1, 1, 1 ), "update":0, "values":[ Vector2( 1, 1 ), Vector2( 1.2, 1.2 ), Vector2( 0.3, 0.3 ), Vector2( 1e-05, 1e-05 ) ] }
+tracks/2/keys = {
+"times": FloatArray( 0, 0.2, 0.7, 1.2 ),
+"transitions": FloatArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1.2, 1.2 ), Vector2( 0.3, 0.3 ), Vector2( 1e-05, 1e-05 ) ]
+}
 
-[sub_resource type="GDScript" id=16]
+[sub_resource type="GDScript" id=17]
 
-script/source = "extends StreamPlayer\n\nvar music_list = [\"res://Sound/as_if_its_a_dragon.ogg\",\n\t\t\t\t\"res://Sound/potentially_perilous.ogg\",\n\t\t\t\t\"res://Sound/a_hazardous_environment.ogg\",\n\t\t\t\t\"res://Sound/dead_whale.ogg\",\n\t\t\t\t\"res://Sound/these_damned_deviants.ogg\"]\n\nvar save_location = \"user://score.scr\"\n\nfunc _ready():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tvar music_value = savedata.get_value(\"Options\", \"music\")\n\tif(music_value):\n\t\trandomize()\n\t\tvar music_choice = randi()%5\n\t\tvar song = load(music_list[music_choice])\n\t\tset_stream(song)\n\t\tplay()\n"
+script/source = "extends StreamPlayer
 
-[sub_resource type="CanvasItemShader" id=17]
+var music_list = [\"res://Sound/as_if_its_a_dragon.ogg\",
+				\"res://Sound/potentially_perilous.ogg\",
+				\"res://Sound/a_hazardous_environment.ogg\",
+				\"res://Sound/dead_whale.ogg\",
+				\"res://Sound/these_damned_deviants.ogg\"]
 
-_code = { "fragment":"color col = vec4(texscreen(SCREEN_UV), 1.0);\nuniform float BRIGHTNESS;\nCOLOR = vec4((1 - col.r) * BRIGHTNESS, (1 - col.g) * BRIGHTNESS, (1 - col.b) * BRIGHTNESS, COLOR.a);", "fragment_ofs":0, "light":"", "light_ofs":0, "vertex":"", "vertex_ofs":0 }
+var save_location = \"user://score.scr\"
 
-[sub_resource type="CanvasItemMaterial" id=18]
+func _ready():
+	var savedata = ConfigFile.new()
+	savedata.load(save_location)
+	var music_value = savedata.get_value(\"Options\", \"music\")
+	if(music_value):
+		randomize()
+		var music_choice = randi()%5
+		var song = load(music_list[music_choice])
+		set_stream(song)
+		play()
+"
 
-shader/shader = SubResource( 17 )
+[sub_resource type="CanvasItemShader" id=18]
+
+_code = {
+"fragment": "color col = vec4(texscreen(SCREEN_UV), 1.0);
+uniform float BRIGHTNESS;
+COLOR = vec4((1 - col.r) * BRIGHTNESS, (1 - col.g) * BRIGHTNESS, (1 - col.b) * BRIGHTNESS, COLOR.a);",
+"fragment_ofs": 0,
+"light": "",
+"light_ofs": 0,
+"vertex": "",
+"vertex_ofs": 0
+}
+
+[sub_resource type="CanvasItemMaterial" id=19]
+
+shader/shader = SubResource( 18 )
 shader/shading_mode = 0
 shader_param/BRIGHTNESS = 1.0
 
-[sub_resource type="GDScript" id=19]
+[sub_resource type="GDScript" id=20]
 
-script/source = "extends Sprite\n\nfunc _ready():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(\"user://score.scr\")\n\tvar mouse = savedata.get_value(\"Options\", \"mouse\")\n\tif(not(mouse)):\n\t\tset_hidden(true)\n\tset_z(4096)\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(get_node(\"../background\").get_global_mouse_pos())"
+script/source = "extends Sprite
+
+func _ready():
+	var savedata = ConfigFile.new()
+	savedata.load(\"user://score.scr\")
+	var mouse = savedata.get_value(\"Options\", \"mouse\")
+	if(not(mouse)):
+		set_hidden(true)
+	set_z(4096)
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(get_node(\"../background\").get_global_mouse_pos())"
 
 [node name="Node" type="Node"]
 
@@ -167,7 +390,9 @@ use_threads = false
 body_size_limit = -1
 max_redirects = 8
 script/script = ExtResource( 1 )
-__meta__ = { "_editor_icon":ExtResource( 2 ) }
+__meta__ = {
+"_editor_icon": ExtResource( 2 )
+}
 private_key = "019361378474be33e306263e790331f2"
 game_id = "244666"
 
@@ -214,7 +439,7 @@ valign = 1
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 20 )
+script/script = SubResource( 2 )
 
 [node name="seconds" type="Label" parent="CanvasLayer"]
 
@@ -242,14 +467,14 @@ valign = 1
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 2 )
+script/script = SubResource( 3 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer"]
 
 playback/process_mode = 1
 playback/default_blend_time = 0.0
 root/root = NodePath("..")
-anims/harder = SubResource( 3 )
+anims/harder = SubResource( 4 )
 playback/active = true
 playback/speed = 1.0
 blend_times = [  ]
@@ -259,7 +484,7 @@ autoplay = ""
 
 transform/pos = Vector2( 606.094, 150.692 )
 transform/scale = Vector2( 1.2, 1.2 )
-script/script = SubResource( 4 )
+script/script = SubResource( 5 )
 
 [node name="Label" type="Label" parent="CanvasLayer/Node2D"]
 
@@ -306,14 +531,14 @@ text = "Paused"
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 5 )
+script/script = SubResource( 6 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer/paused"]
 
 playback/process_mode = 1
 playback/default_blend_time = 0.0
 root/root = NodePath("..")
-anims/blink = SubResource( 6 )
+anims/blink = SubResource( 7 )
 playback/active = true
 playback/speed = 1.0
 blend_times = [  ]
@@ -340,22 +565,22 @@ text = "X1.0"
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 7 )
+script/script = SubResource( 8 )
 
 [node name="background" type="KinematicBody2D" parent="."]
 
 transform/scale = Vector2( 0.5, 0.5 )
 input/pickable = false
-shapes/0/shape = SubResource( 8 )
+shapes/0/shape = SubResource( 9 )
 shapes/0/transform = Matrix32( 1, 0, 0, 1, 13, 13 )
 shapes/0/trigger = false
-shapes/1/shape = SubResource( 9 )
+shapes/1/shape = SubResource( 10 )
 shapes/1/transform = Matrix32( 1, 0, 0, 1, 13, 13 )
 shapes/1/trigger = false
-shapes/2/shape = SubResource( 10 )
+shapes/2/shape = SubResource( 11 )
 shapes/2/transform = Matrix32( 1, 0, 0, 1, 13, 13 )
 shapes/2/trigger = false
-shapes/3/shape = SubResource( 11 )
+shapes/3/shape = SubResource( 12 )
 shapes/3/transform = Matrix32( 1, 0, 0, 1, 13, 13 )
 shapes/3/trigger = false
 collision/layers = 1
@@ -372,28 +597,28 @@ modulate = Color( 0.707055, 0.851778, 0.949996, 1 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="background"]
 
 transform/pos = Vector2( 13, 13 )
-shape = SubResource( 8 )
+shape = SubResource( 9 )
 trigger = false
 _update_shape_index = 0
 
 [node name="CollisionShape2D1" type="CollisionShape2D" parent="background"]
 
 transform/pos = Vector2( 13, 13 )
-shape = SubResource( 9 )
+shape = SubResource( 10 )
 trigger = false
 _update_shape_index = 1
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="background"]
 
 transform/pos = Vector2( 13, 13 )
-shape = SubResource( 10 )
+shape = SubResource( 11 )
 trigger = false
 _update_shape_index = 2
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="background"]
 
 transform/pos = Vector2( 13, 13 )
-shape = SubResource( 11 )
+shape = SubResource( 12 )
 trigger = false
 _update_shape_index = 3
 
@@ -402,7 +627,7 @@ _update_shape_index = 3
 playback/process_mode = 1
 playback/default_blend_time = 0.0
 root/root = NodePath("..")
-anims/modulate = SubResource( 12 )
+anims/modulate = SubResource( 13 )
 playback/active = true
 playback/speed = 1.0
 blend_times = [  ]
@@ -412,16 +637,16 @@ autoplay = "modulate"
 
 editor/display_folded = true
 input/pickable = true
-shapes/0/shape = SubResource( 13 )
+shapes/0/shape = SubResource( 14 )
 shapes/0/transform = Matrix32( 1, 0, 0, 1, 924.718, 5.99791 )
 shapes/0/trigger = false
-shapes/1/shape = SubResource( 13 )
+shapes/1/shape = SubResource( 14 )
 shapes/1/transform = Matrix32( 0.993791, 0, 0, 1, 924.728, 1595.54 )
 shapes/1/trigger = false
-shapes/2/shape = SubResource( 14 )
+shapes/2/shape = SubResource( 15 )
 shapes/2/transform = Matrix32( -4.3283e-08, -0.9902, 1, -4.37114e-08, 5.95676, 799.958 )
 shapes/2/trigger = false
-shapes/3/shape = SubResource( 14 )
+shapes/3/shape = SubResource( 15 )
 shapes/3/transform = Matrix32( -4.3283e-08, -0.9902, 1, -4.37114e-08, 1845.63, 799.61 )
 shapes/3/trigger = false
 gravity_vec = Vector2( 0, 1 )
@@ -432,7 +657,7 @@ angular_damp = 1.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="lose_zone"]
 
 transform/pos = Vector2( 924.718, 5.99791 )
-shape = SubResource( 13 )
+shape = SubResource( 14 )
 trigger = false
 _update_shape_index = 0
 
@@ -440,7 +665,7 @@ _update_shape_index = 0
 
 transform/pos = Vector2( 924.728, 1595.54 )
 transform/scale = Vector2( 0.993791, 1 )
-shape = SubResource( 13 )
+shape = SubResource( 14 )
 trigger = false
 _update_shape_index = 1
 
@@ -449,7 +674,7 @@ _update_shape_index = 1
 transform/pos = Vector2( 5.95676, 799.958 )
 transform/rot = 90.0
 transform/scale = Vector2( 0.9902, 1 )
-shape = SubResource( 14 )
+shape = SubResource( 15 )
 trigger = false
 _update_shape_index = 2
 
@@ -458,7 +683,7 @@ _update_shape_index = 2
 transform/pos = Vector2( 1845.63, 799.61 )
 transform/rot = 90.0
 transform/scale = Vector2( 0.9902, 1 )
-shape = SubResource( 14 )
+shape = SubResource( 15 )
 trigger = false
 _update_shape_index = 3
 
@@ -472,7 +697,7 @@ process/pause_mode = 2
 playback/process_mode = 1
 playback/default_blend_time = 0.0
 root/root = NodePath("..")
-anims/lose = SubResource( 15 )
+anims/lose = SubResource( 16 )
 playback/active = true
 playback/speed = 1.0
 blend_times = [  ]
@@ -488,16 +713,16 @@ stream/autoplay = false
 stream/paused = false
 stream/loop_restart_time = 0.0
 stream/buffering_ms = 500
-script/script = SubResource( 16 )
+script/script = SubResource( 17 )
 
 [node name="cursor" type="Sprite" parent="."]
 
-material/material = SubResource( 18 )
+material/material = SubResource( 19 )
 transform/pos = Vector2( 242, 159 )
 transform/scale = Vector2( 0.5, 0.5 )
 texture = ExtResource( 8 )
 offset = Vector2( -6, -6 )
-script/script = SubResource( 19 )
+script/script = SubResource( 20 )
 
 [connection signal="body_enter" from="lose_zone" to="." method="_on_lose_zone_body_enter"]
 

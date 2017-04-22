@@ -7,37 +7,70 @@
 [ext_resource path="res://Scenes/backgroundscroller.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Graphics/grass.png" type="Texture" id=6]
 
-[sub_resource type="GDScript" id=1]
+[sub_resource type="GDScript" id=4]
 
-script/source = "extends Label\n\nvar visible_scores = {}\n\nfunc _ready():\n\tset_fixed_process(true)\n\tget_node(\"../../GameJoltAPI\").fetch_scores(\"30\")\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 75))\n\nfunc _on_GameJoltAPI_api_score_fetched( scores ):\n\tvisible_scores.parse_json(scores)\n\tif(visible_scores!=null):\n\t\tvisible_scores = visible_scores[\"response\"][\"scores\"]\n\t\tvar names = \"\"\n\t\tvar names2= \"\"\n\t\tfor i in range(visible_scores.size()):\n\t\t\tif(i<15):\n\t\t\t\tnames += visible_scores[i][\"guest\"] + \"\\n\"\n\t\t\telif(i<30):\n\t\t\t\tnames2 += visible_scores[i][\"guest\"] + \"\\n\"\n\t\tget_node(\"../names\").set_text(names)\n\t\tget_node(\"../names2\").set_text(names2)\n\t\tvar scores = \"\"\n\t\tvar scores2= \"\"\n\t\tfor i in range(visible_scores.size()):\n\t\t\tif(i<15):\n\t\t\t\tscores += visible_scores[i][\"score\"] + \"\\n\"\n\t\t\telif(i<30):\n\t\t\t\tscores2 += visible_scores[i][\"score\"] + \"\\n\"\n\t\tget_node(\"../scores\").set_text(scores)\n\t\tget_node(\"../scores2\").set_text(scores2)\n"
+script/source = "extends Label
 
-[sub_resource type="StyleBoxFlat" id=2]
+var visible_scores = {}
+
+func _ready():
+	set_fixed_process(true)
+	get_node(\"../../GameJoltAPI\").fetch_scores(\"30\")
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 75))
+
+func _on_GameJoltAPI_api_score_fetched( scores ):
+	visible_scores.parse_json(scores)
+	if(visible_scores!=null):
+		visible_scores = visible_scores[\"response\"][\"scores\"]
+		var names = \"\"
+		var names2= \"\"
+		for i in range(visible_scores.size()):
+			if(i<15):
+				names += visible_scores[i][\"guest\"] + \"\\n\"
+			elif(i<30):
+				names2 += visible_scores[i][\"guest\"] + \"\\n\"
+		get_node(\"../names\").set_text(names)
+		get_node(\"../names2\").set_text(names2)
+		var scores = \"\"
+		var scores2= \"\"
+		for i in range(visible_scores.size()):
+			if(i<15):
+				scores += visible_scores[i][\"score\"] + \"\\n\"
+			elif(i<30):
+				scores2 += visible_scores[i][\"score\"] + \"\\n\"
+		get_node(\"../scores\").set_text(scores)
+		get_node(\"../scores2\").set_text(scores2)
+"
+
+[sub_resource type="StyleBoxFlat" id=1]
 
 content_margin/left = -1.0
 content_margin/right = -1.0
 content_margin/top = -1.0
 content_margin/bottom = -1.0
-bg_color = Color( 0.230469, 0.230469, 0.230469, 1 )
-light_color = Color( 0.609375, 0.609375, 0.609375, 0.633882 )
-dark_color = Color( 0.507812, 0.507812, 0.507812, 1 )
+bg_color = Color( 0, 0, 0, 0.322431 )
+light_color = Color( 0.294118, 0.294118, 0.294118, 1 )
+dark_color = Color( 0.296875, 0.296875, 0.296875, 1 )
 border_size = 4
-border_blend = true
-draw_bg = true
+border_blend = false
+draw_bg = false
 
-[sub_resource type="StyleBoxFlat" id=3]
+[sub_resource type="StyleBoxFlat" id=5]
 
 content_margin/left = -1.0
 content_margin/right = -1.0
 content_margin/top = -1.0
 content_margin/bottom = -1.0
-bg_color = Color( 0.140625, 0.140625, 0.140625, 1 )
-light_color = Color( 0.566406, 0.566406, 0.566406, 0.508196 )
-dark_color = Color( 0.564706, 0.564706, 0.564706, 0.505882 )
+bg_color = Color( 0, 0, 0, 0.590157 )
+light_color = Color( 0, 0, 0, 1 )
+dark_color = Color( 0, 0, 0, 1 )
 border_size = 4
-border_blend = true
+border_blend = false
 draw_bg = true
 
-[sub_resource type="Theme" id=4]
+[sub_resource type="Theme" id=3]
 
 default_font = ExtResource( 4 )
 ToolButton/colors/font_color = Color( 0.878431, 0.878431, 0.878431, 1 )
@@ -48,13 +81,23 @@ ToolButton/constants/hseparation = 3
 ToolButton/fonts/font = null
 ToolButton/styles/disabled = null
 ToolButton/styles/focus = null
-ToolButton/styles/hover = SubResource( 2 )
+ToolButton/styles/hover = SubResource( 1 )
 ToolButton/styles/normal = null
-ToolButton/styles/pressed = SubResource( 3 )
+ToolButton/styles/pressed = SubResource( 5 )
 
-[sub_resource type="GDScript" id=5]
+[sub_resource type="GDScript" id=6]
 
-script/source = "extends ToolButton\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2(OS.get_window_size().x - 380, OS.get_window_size().y - 150))\n\nfunc _on_back_pressed():\n\tget_tree().change_scene(\"res://Scenes/MainMenu.tscn\")\n"
+script/source = "extends ToolButton
+
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2(OS.get_window_size().x - 380, OS.get_window_size().y - 150))
+
+func _on_back_pressed():
+	get_tree().change_scene(\"res://Scenes/MainMenu.tscn\")
+"
 
 [node name="Node" type="Node"]
 
@@ -64,7 +107,9 @@ use_threads = false
 body_size_limit = -1
 max_redirects = 8
 script/script = ExtResource( 1 )
-__meta__ = { "_editor_icon":ExtResource( 2 ) }
+__meta__ = {
+"_editor_icon": ExtResource( 2 )
+}
 private_key = "019361378474be33e306263e790331f2"
 game_id = "244666"
 
@@ -94,7 +139,7 @@ text = "High Scores"
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 1 )
+script/script = SubResource( 4 )
 
 [node name="numbers_1-15" type="Label" parent="CanvasLayer"]
 
@@ -113,7 +158,21 @@ custom_constants/shadow_offset_x = 1
 custom_constants/line_spacing = 15
 custom_constants/shadow_offset_y = 2
 custom_constants/shadow_as_outline = 1
-text = "1.\n2.\n3.\n4.\n5.\n6.\n7.\n8.\n9.\n10.\n11.\n12.\n13.\n14.\n15."
+text = "1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+11.
+12.
+13.
+14.
+15."
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
@@ -124,9 +183,9 @@ focus/ignore_mouse = true
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 0
-margin/left = 626.0
+margin/left = 666.0
 margin/top = 180.0
-margin/right = 671.0
+margin/right = 714.0
 margin/bottom = 843.0
 custom_fonts/font = ExtResource( 4 )
 custom_colors/font_color = Color( 0.760784, 0.760784, 0.760784, 1 )
@@ -135,7 +194,21 @@ custom_constants/shadow_offset_x = 1
 custom_constants/line_spacing = 15
 custom_constants/shadow_offset_y = 2
 custom_constants/shadow_as_outline = 1
-text = "16.\n17.\n18.\n19.\n20.\n21.\n22.\n23.\n24.\n25.\n26.\n27.\n28.\n29.\n30."
+text = "16.
+17.
+18.
+19.
+20.
+21.
+22.
+23.
+24.
+25.
+26.
+27.
+28.
+29.
+30."
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
@@ -156,7 +229,21 @@ custom_constants/shadow_offset_x = 1
 custom_constants/line_spacing = 15
 custom_constants/shadow_offset_y = 2
 custom_constants/shadow_as_outline = 1
-text = "Loading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading..."
+text = "Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading..."
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
@@ -167,9 +254,9 @@ focus/ignore_mouse = true
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 0
-margin/left = 721.0
+margin/left = 761.0
 margin/top = 180.0
-margin/right = 869.0
+margin/right = 910.0
 margin/bottom = 843.0
 custom_fonts/font = ExtResource( 4 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
@@ -177,7 +264,21 @@ custom_constants/shadow_offset_x = 1
 custom_constants/line_spacing = 15
 custom_constants/shadow_offset_y = 2
 custom_constants/shadow_as_outline = 1
-text = "Loading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading..."
+text = "Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading..."
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
@@ -188,9 +289,9 @@ focus/ignore_mouse = true
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 0
-margin/left = 408.0
+margin/left = 448.0
 margin/top = 180.0
-margin/right = 556.0
+margin/right = 597.0
 margin/bottom = 843.0
 custom_fonts/font = ExtResource( 4 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
@@ -198,7 +299,21 @@ custom_constants/shadow_offset_x = 1
 custom_constants/line_spacing = 15
 custom_constants/shadow_offset_y = 2
 custom_constants/shadow_as_outline = 1
-text = "Loading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading..."
+text = "Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading..."
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
@@ -209,9 +324,9 @@ focus/ignore_mouse = true
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 0
-margin/left = 959.0
+margin/left = 1039.0
 margin/top = 180.0
-margin/right = 1107.0
+margin/right = 1188.0
 margin/bottom = 843.0
 custom_fonts/font = ExtResource( 4 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
@@ -219,7 +334,21 @@ custom_constants/shadow_offset_x = 1
 custom_constants/line_spacing = 15
 custom_constants/shadow_offset_y = 2
 custom_constants/shadow_as_outline = 1
-text = "Loading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading...\nLoading..."
+text = "Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading...
+Loading..."
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
@@ -230,7 +359,7 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-theme/theme = SubResource( 4 )
+theme/theme = SubResource( 3 )
 margin/left = 1302.0
 margin/top = 769.0
 margin/right = 1552.0
@@ -241,7 +370,7 @@ enabled_focus_mode = 2
 shortcut = null
 text = "Back"
 flat = true
-script/script = SubResource( 5 )
+script/script = SubResource( 6 )
 
 [node name="RigidBody2D" parent="." instance=ExtResource( 5 )]
 
@@ -250,7 +379,7 @@ script/script = SubResource( 5 )
 transform/scale = Vector2( 2, 2 )
 texture = ExtResource( 6 )
 centered = false
-modulate = Color( 0.623529, 0.92549, 0.988235, 1 )
+modulate = Color( 0.447059, 0, 0, 1 )
 
 [connection signal="api_score_fetched" from="GameJoltAPI" to="CanvasLayer/title" method="_on_GameJoltAPI_api_score_fetched"]
 

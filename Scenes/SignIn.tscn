@@ -9,7 +9,18 @@
 
 [sub_resource type="GDScript" id=1]
 
-script/source = "extends Label\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 75))\n\tget_node(\"../username\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../username\").get_size().x/2, 247))\n\tget_node(\"../token\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../token\").get_size().x/2, 344))\n\tget_node(\"../signin\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../signin\").get_size().x/2, 623))\n\tget_node(\"../response\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../response\").get_size().x/2, 485))\n\tget_node(\"../greet\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../greet\").get_size().x/2, 294))"
+script/source = "extends Label
+
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 75))
+	get_node(\"../username\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../username\").get_size().x/2, 247))
+	get_node(\"../token\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../token\").get_size().x/2, 344))
+	get_node(\"../signin\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../signin\").get_size().x/2, 623))
+	get_node(\"../response\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../response\").get_size().x/2, 485))
+	get_node(\"../greet\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../greet\").get_size().x/2, 294))"
 
 [sub_resource type="StyleBoxFlat" id=2]
 
@@ -54,11 +65,100 @@ ToolButton/styles/pressed = SubResource( 3 )
 
 [sub_resource type="GDScript" id=5]
 
-script/source = "extends ToolButton\n\nvar username\nvar token\nvar signed_in = false\nvar save_location = \"user://score.scr\"\n\nfunc _ready():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tusername = savedata.get_value(\"GameJolt\", \"username\")\n\ttoken = savedata.get_value(\"GameJolt\", \"token\")\n\tsigned_in = savedata.get_value(\"GameJolt\", \"signed_in\")\n\tif(signed_in):\n\t\tsucceeded_to_log_in()\n\t\nfunc attempt_log_in():\n\tusername = get_node(\"../username\").get_text()\n\ttoken = get_node(\"../token\").get_text()\n\tget_node(\"../../GameJoltAPI\").auth_user(token, username)\n\t\nfunc log_out():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tsavedata.set_value(\"GameJolt\", \"username\", \"\")\n\tsavedata.set_value(\"GameJolt\", \"token\", \"\")\n\tsavedata.set_value(\"GameJolt\", \"signed_in\", false)\n\tsigned_in = false\n\tsavedata.save(save_location)\n\t\n\tget_node(\"../response\").set_hidden(true)\n\tget_node(\"../greet\").set_hidden(true)\n\tget_node(\"../username\").set_hidden(false)\n\tget_node(\"../token\").set_hidden(false)\n\tset_text(\"Sign In\")\n\t\nfunc succeeded_to_log_in():\n\tsigned_in = true\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tsavedata.set_value(\"GameJolt\", \"username\", username)\n\tsavedata.set_value(\"GameJolt\", \"token\", token)\n\tsavedata.set_value(\"GameJolt\", \"signed_in\", true)\n\tsavedata.save(save_location)\n\tget_node(\"../response\").set_text(\"Success!\")\n\tget_node(\"../response\").set_hidden(false)\n\tget_node(\"../greet\").set_text(\"Welcome, \" + username + \"!\")\n\tget_node(\"../greet\").set_hidden(false)\n\tget_node(\"../username\").set_hidden(true)\n\tget_node(\"../token\").set_hidden(true)\n\tset_text(\"Sign Out\")\n\nfunc _on_token_text_entered( text ):\n\tattempt_log_in()\n\nfunc _on_ToolButton_pressed():\n\tif(signed_in):\n\t\tlog_out()\n\telse:\n\t\tattempt_log_in()\n\nfunc _on_username_text_entered( text ):\n\tattempt_log_in()\n\nfunc _on_GameJoltAPI_api_authenticated( success ):\n\tvar response_dict = {}\n\tresponse_dict.parse_json(success)\n\tif(response_dict[\"response\"][\"success\"] == \"true\"):\n\t\tsucceeded_to_log_in()\n\telse:\n\t\tget_node(\"../response\").set_text(\"Failed!\")\n\t\tget_node(\"../response\").set_hidden(false)\n"
+script/source = "extends ToolButton
+
+var username
+var token
+var signed_in = false
+var save_location = \"user://score.scr\"
+
+func _ready():
+	var savedata = ConfigFile.new()
+	savedata.load(save_location)
+	username = savedata.get_value(\"GameJolt\", \"username\")
+	token = savedata.get_value(\"GameJolt\", \"token\")
+	signed_in = savedata.get_value(\"GameJolt\", \"signed_in\")
+	if(signed_in):
+		succeeded_to_log_in()
+	
+func attempt_log_in():
+	username = get_node(\"../username\").get_text()
+	token = get_node(\"../token\").get_text()
+	get_node(\"../../GameJoltAPI\").auth_user(token, username)
+	
+func log_out():
+	var savedata = ConfigFile.new()
+	savedata.load(save_location)
+	savedata.set_value(\"GameJolt\", \"username\", \"\")
+	savedata.set_value(\"GameJolt\", \"token\", \"\")
+	savedata.set_value(\"GameJolt\", \"signed_in\", false)
+	signed_in = false
+	savedata.save(save_location)
+	
+	get_node(\"../response\").set_hidden(true)
+	get_node(\"../greet\").set_hidden(true)
+	get_node(\"../username\").set_hidden(false)
+	get_node(\"../token\").set_hidden(false)
+	set_text(\"Sign In\")
+	
+func succeeded_to_log_in():
+	signed_in = true
+	var savedata = ConfigFile.new()
+	savedata.load(save_location)
+	savedata.set_value(\"GameJolt\", \"username\", username)
+	savedata.set_value(\"GameJolt\", \"token\", token)
+	savedata.set_value(\"GameJolt\", \"signed_in\", true)
+	savedata.save(save_location)
+	get_node(\"../response\").set_text(\"Success!\")
+	get_node(\"../response\").set_hidden(false)
+	get_node(\"../greet\").set_text(\"Welcome, \" + username + \"!\")
+	get_node(\"../greet\").set_hidden(false)
+	get_node(\"../username\").set_hidden(true)
+	get_node(\"../token\").set_hidden(true)
+	set_text(\"Sign Out\")
+
+func _on_token_text_entered( text ):
+	attempt_log_in()
+
+func _on_ToolButton_pressed():
+	if(signed_in):
+		log_out()
+	else:
+		attempt_log_in()
+
+func _on_username_text_entered( text ):
+	attempt_log_in()
+
+func _on_GameJoltAPI_api_authenticated( success ):
+	var response_dict = {}
+	response_dict.parse_json(success)
+	if(response_dict[\"response\"][\"success\"] == \"true\"):
+		succeeded_to_log_in()
+	else:
+		get_node(\"../response\").set_text(\"Failed!\")
+		get_node(\"../response\").set_hidden(false)
+"
 
 [sub_resource type="GDScript" id=6]
 
-script/source = "extends ToolButton\n\nvar save_location = \"user://score.scr\"\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2(80, OS.get_window_size().y - 150))\n\nfunc _on_back_pressed():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tsavedata.set_value(\"GameJolt\", \"username\", get_node(\"../signin\").username)\n\tsavedata.set_value(\"GameJolt\", \"token\", get_node(\"../signin\").token)\n\tsavedata.save(save_location)\n\tget_tree().change_scene(\"res://Scenes/MainMenu.tscn\")\n"
+script/source = "extends ToolButton
+
+var save_location = \"user://score.scr\"
+
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2(80, OS.get_window_size().y - 150))
+
+func _on_back_pressed():
+	var savedata = ConfigFile.new()
+	savedata.load(save_location)
+	savedata.set_value(\"GameJolt\", \"username\", get_node(\"../signin\").username)
+	savedata.set_value(\"GameJolt\", \"token\", get_node(\"../signin\").token)
+	savedata.save(save_location)
+	get_tree().change_scene(\"res://Scenes/MainMenu.tscn\")
+"
 
 [node name="Node" type="Node"]
 
@@ -68,7 +168,9 @@ use_threads = false
 body_size_limit = -1
 max_redirects = 8
 script/script = ExtResource( 1 )
-__meta__ = { "_editor_icon":ExtResource( 2 ) }
+__meta__ = {
+"_editor_icon": ExtResource( 2 )
+}
 private_key = "019361378474be33e306263e790331f2"
 game_id = "244666"
 

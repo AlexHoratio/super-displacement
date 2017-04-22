@@ -8,53 +8,112 @@
 [ext_resource path="res://Graphics/pixelfont.fnt" type="BitmapFont" id=6]
 [ext_resource path="res://Scenes/backgroundscroller.tscn" type="PackedScene" id=7]
 
-[sub_resource type="GDScript" id=1]
+[sub_resource type="GDScript" id=6]
 
-script/source = "extends Node\n\nfunc _ready():\n\tget_tree().set_pause(false)"
+script/source = "extends Node
 
-[sub_resource type="GDScript" id=2]
+func _ready():
+	get_tree().set_pause(false)"
 
-script/source = "extends Label\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - (get_size().x/2), 160))"
+[sub_resource type="GDScript" id=7]
 
-[sub_resource type="GDScript" id=3]
+script/source = "extends Label
 
-script/source = "extends Label\n\nfunc _ready():\n\tvar scoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tvar high_score = scoreFile.get_value(\"Score\", \"high_score\")\n\tset_text(\"Highscore: \" + str(high_score))\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - (get_size().x/2), 300))\n\t"
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - (get_size().x/2), 160))"
 
-[sub_resource type="GDScript" id=4]
+[sub_resource type="GDScript" id=8]
 
-script/source = "extends Label\n\nvar latest_score\n\nfunc _ready():\n\tvar scoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tlatest_score = scoreFile.get_value(\"Score\", \"latest_score\")\n\tset_text(\"Score: \" + str(latest_score))\n\tset_fixed_process(true)\n\tif(latest_score < 100):\n\t\tget_node(\"../flavour\").set_text(\"Great start!\")\n\telif(latest_score < 500):\n\t\tget_node(\"../flavour\").set_text(\"Not bad!\")\n\telif(latest_score < 1000):\n\t\tget_node(\"../flavour\").set_text(\"Excellent!\")\n\telif(latest_score < 2000):\n\t\tget_node(\"../flavour\").set_text(\"Wow!!\")\n\telif(latest_score < 4000):\n\t\tget_node(\"../flavour\").set_text(\"Unbelievable!\")\n\telif(latest_score < 10000):\n\t\tget_node(\"../flavour\").set_text(\"Remember to take breaks!\")\n\telse:\n\t\tget_node(\"../flavour\").set_text(\"Please stop!\")\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - (get_size().x/2), 380))"
+script/source = "extends Label
 
-[sub_resource type="GDScript" id=5]
+func _ready():
+	var scoreFile = ConfigFile.new()
+	scoreFile.load(\"user://score.scr\")
+	var high_score = scoreFile.get_value(\"Score\", \"high_score\")
+	set_text(\"Highscore: \" + str(high_score))
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - (get_size().x/2), 300))
+	"
 
-script/source = "extends Label\n\nfunc _ready():\n\tvar scoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tvar latest_score = scoreFile.get_value(\"Score\", \"enemies_killed\")\n\tvar bullets = scoreFile.get_value(\"Score\",\"bullets\")\n\tif(bullets>0):\n\t\tset_text(\"Accuracy: \" + str(100*latest_score/bullets) + \"%\")\n\telse:\n\t\tset_text(\"You didn\'t shoot a single bullet\")\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - (get_size().x/2), 460))"
+[sub_resource type="GDScript" id=9]
 
-[sub_resource type="StyleBoxFlat" id=6]
+script/source = "extends Label
+
+var latest_score
+
+func _ready():
+	var scoreFile = ConfigFile.new()
+	scoreFile.load(\"user://score.scr\")
+	latest_score = scoreFile.get_value(\"Score\", \"latest_score\")
+	set_text(\"Score: \" + str(latest_score))
+	set_fixed_process(true)
+	if(latest_score < 100):
+		get_node(\"../flavour\").set_text(\"Great start!\")
+	elif(latest_score < 500):
+		get_node(\"../flavour\").set_text(\"Not bad!\")
+	elif(latest_score < 1000):
+		get_node(\"../flavour\").set_text(\"Excellent!\")
+	elif(latest_score < 2000):
+		get_node(\"../flavour\").set_text(\"Wow!!\")
+	elif(latest_score < 4000):
+		get_node(\"../flavour\").set_text(\"Unbelievable!\")
+	elif(latest_score < 10000):
+		get_node(\"../flavour\").set_text(\"Remember to take breaks!\")
+	else:
+		get_node(\"../flavour\").set_text(\"Please stop!\")
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - (get_size().x/2), 380))"
+
+[sub_resource type="GDScript" id=10]
+
+script/source = "extends Label
+
+func _ready():
+	var scoreFile = ConfigFile.new()
+	scoreFile.load(\"user://score.scr\")
+	var latest_score = scoreFile.get_value(\"Score\", \"enemies_killed\")
+	var bullets = scoreFile.get_value(\"Score\",\"bullets\")
+	if(bullets>0):
+		set_text(\"Accuracy: \" + str(100*latest_score/bullets) + \"%\")
+	else:
+		set_text(\"You didn't shoot a single bullet\")
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - (get_size().x/2), 460))"
+
+[sub_resource type="StyleBoxFlat" id=1]
 
 content_margin/left = -1.0
 content_margin/right = -1.0
 content_margin/top = -1.0
 content_margin/bottom = -1.0
-bg_color = Color( 0.230469, 0.230469, 0.230469, 1 )
-light_color = Color( 0.609375, 0.609375, 0.609375, 0.633882 )
-dark_color = Color( 0.507812, 0.507812, 0.507812, 1 )
+bg_color = Color( 0, 0, 0, 0.322431 )
+light_color = Color( 0.294118, 0.294118, 0.294118, 1 )
+dark_color = Color( 0.296875, 0.296875, 0.296875, 1 )
 border_size = 4
-border_blend = true
-draw_bg = true
+border_blend = false
+draw_bg = false
 
-[sub_resource type="StyleBoxFlat" id=7]
+[sub_resource type="StyleBoxFlat" id=5]
 
 content_margin/left = -1.0
 content_margin/right = -1.0
 content_margin/top = -1.0
 content_margin/bottom = -1.0
-bg_color = Color( 0.140625, 0.140625, 0.140625, 1 )
-light_color = Color( 0.566406, 0.566406, 0.566406, 0.508196 )
-dark_color = Color( 0.564706, 0.564706, 0.564706, 0.505882 )
+bg_color = Color( 0, 0, 0, 0.590157 )
+light_color = Color( 0, 0, 0, 1 )
+dark_color = Color( 0, 0, 0, 1 )
 border_size = 4
-border_blend = true
+border_blend = false
 draw_bg = true
 
-[sub_resource type="Theme" id=8]
+[sub_resource type="Theme" id=3]
 
 default_font = ExtResource( 6 )
 ToolButton/colors/font_color = Color( 0.878431, 0.878431, 0.878431, 1 )
@@ -65,27 +124,82 @@ ToolButton/constants/hseparation = 3
 ToolButton/fonts/font = null
 ToolButton/styles/disabled = null
 ToolButton/styles/focus = null
-ToolButton/styles/hover = SubResource( 6 )
+ToolButton/styles/hover = SubResource( 1 )
 ToolButton/styles/normal = null
-ToolButton/styles/pressed = SubResource( 7 )
-
-[sub_resource type="GDScript" id=9]
-
-script/source = "extends ToolButton\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - 125, 670))\n\nfunc _on_retry_pressed():\n\tget_tree().change_scene(\"res://Scenes/MainGame.tscn\")\n"
-
-[sub_resource type="GDScript" id=10]
-
-script/source = "extends Label\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 590))"
+ToolButton/styles/pressed = SubResource( 5 )
 
 [sub_resource type="GDScript" id=11]
 
-script/source = "extends ToolButton\n\nvar username\n\nfunc _ready():\n\trandomize()\n\tset_fixed_process(true)\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(\"user://score.scr\")\n\tif(savedata.get_value(\"GameJolt\", \"auto_submit\")):\n\t\tset_hidden(true)\n\t\tif(savedata.get_value(\"GameJolt\", \"username\") == \"\"):\n\t\t\tusername = \"Guest\"+str(randi()%10000000)\n\t\telse:\n\t\t\tusername = savedata.get_value(\"GameJolt\", \"username\") \n\t\tget_node(\"../../GameJoltAPI\").add_score_for_guest(str(get_node(\"../score\").latest_score), int(get_node(\"../score\").latest_score), username)\n\t\n\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - 125, 560))\n\nfunc _on_options_pressed():\n\tget_tree().change_scene(\"res://Scenes/SubmitScore.tscn\")\n\nfunc _on_GameJoltAPI_api_score_added( success ):\n\tvar succeeded = {}\n\tsucceeded.parse_json(success)\n\tif(succeeded[\"response\"][\"success\"]):\n\t\tget_node(\"../autosubmitting\").set_text(\"Submitted score as \" + username)"
+script/source = "extends ToolButton
+
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - 125, 670))
+
+func _on_retry_pressed():
+	get_tree().change_scene(\"res://Scenes/MainGame.tscn\")
+"
 
 [sub_resource type="GDScript" id=12]
 
-script/source = "extends ToolButton\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - 125, 780))\n\nfunc _on_quit_pressed():\n\tget_tree().change_scene(\"res://Scenes/MainMenu.tscn\")\n"
+script/source = "extends Label
 
-[sub_resource type="Animation" id=13]
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 590))"
+
+[sub_resource type="GDScript" id=13]
+
+script/source = "extends ToolButton
+
+var username
+
+func _ready():
+	randomize()
+	set_fixed_process(true)
+	var savedata = ConfigFile.new()
+	savedata.load(\"user://score.scr\")
+	if(savedata.get_value(\"GameJolt\", \"auto_submit\")):
+		set_hidden(true)
+		get_node(\"../autosubmitting\").set_hidden(false)
+		if(savedata.get_value(\"GameJolt\", \"username\") == \"\"):
+			username = \"Guest\"+str(randi()%10000000)
+		else:
+			username = savedata.get_value(\"GameJolt\", \"username\") 
+		get_node(\"../../GameJoltAPI\").add_score_for_guest(str(get_node(\"../score\").latest_score), int(get_node(\"../score\").latest_score), username)
+	
+
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - 125, 560))
+
+func _on_options_pressed():
+	get_tree().change_scene(\"res://Scenes/SubmitScore.tscn\")
+
+func _on_GameJoltAPI_api_score_added( success ):
+	var succeeded = {}
+	succeeded.parse_json(success)
+	if(succeeded[\"response\"][\"success\"]):
+		get_node(\"../autosubmitting\").set_text(\"Submitted score as \" + username)"
+
+[sub_resource type="GDScript" id=14]
+
+script/source = "extends ToolButton
+
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - 125, 780))
+
+func _on_quit_pressed():
+	get_tree().change_scene(\"res://Scenes/MainMenu.tscn\")
+"
+
+[sub_resource type="Animation" id=15]
 
 length = 1.4
 loop = true
@@ -94,11 +208,16 @@ tracks/0/type = "value"
 tracks/0/path = NodePath(".:rect/scale")
 tracks/0/interp = 2
 tracks/0/imported = false
-tracks/0/keys = { "times":FloatArray( 0, 0.7 ), "transitions":FloatArray( 1, 1 ), "update":0, "values":[ Vector2( 1, 1 ), Vector2( 1.1, 1.1 ) ] }
+tracks/0/keys = {
+"times": FloatArray( 0, 0.7 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1.1, 1.1 ) ]
+}
 
 [node name="Node" type="Node"]
 
-script/script = SubResource( 1 )
+script/script = SubResource( 6 )
 
 [node name="GameJoltAPI" type="HTTPRequest" parent="."]
 
@@ -106,7 +225,9 @@ use_threads = false
 body_size_limit = -1
 max_redirects = 8
 script/script = ExtResource( 1 )
-__meta__ = { "_editor_icon":ExtResource( 2 ) }
+__meta__ = {
+"_editor_icon": ExtResource( 2 )
+}
 private_key = "019361378474be33e306263e790331f2"
 game_id = "244666"
 
@@ -115,7 +236,7 @@ game_id = "244666"
 transform/scale = Vector2( 2, 2 )
 texture = ExtResource( 3 )
 centered = false
-modulate = Color( 0.623529, 0.92549, 0.988235, 1 )
+modulate = Color( 0.447059, 0, 0, 1 )
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -130,10 +251,10 @@ focus/ignore_mouse = true
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 0
-margin/left = 361.0
+margin/left = 372.0
 margin/top = 196.0
-margin/right = 1286.0
-margin/bottom = 297.0
+margin/right = 1258.0
+margin/bottom = 317.0
 custom_fonts/font = ExtResource( 4 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
 custom_constants/shadow_offset_x = 3
@@ -141,10 +262,11 @@ custom_constants/line_spacing = 0
 custom_constants/shadow_offset_y = 3
 custom_constants/shadow_as_outline = 3
 text = "Game Over!"
+autowrap = true
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 2 )
+script/script = SubResource( 7 )
 
 [node name="highscore" type="Label" parent="CanvasLayer"]
 
@@ -165,7 +287,7 @@ text = "Highscore: 1337"
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 3 )
+script/script = SubResource( 8 )
 
 [node name="score" type="Label" parent="CanvasLayer"]
 
@@ -186,7 +308,7 @@ text = "Score: 666"
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 4 )
+script/script = SubResource( 9 )
 
 [node name="accuracy" type="Label" parent="CanvasLayer"]
 
@@ -207,7 +329,7 @@ text = "Accuracy: 69%"
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 5 )
+script/script = SubResource( 10 )
 
 [node name="retry" type="ToolButton" parent="CanvasLayer"]
 
@@ -215,7 +337,7 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-theme/theme = SubResource( 8 )
+theme/theme = SubResource( 3 )
 margin/left = 673.0
 margin/top = 550.0
 margin/right = 923.0
@@ -227,10 +349,11 @@ enabled_focus_mode = 2
 shortcut = null
 text = "Retry"
 flat = true
-script/script = SubResource( 9 )
+script/script = SubResource( 11 )
 
 [node name="autosubmitting" type="Label" parent="CanvasLayer"]
 
+visibility/visible = false
 anchor/left = 3
 anchor/top = 3
 anchor/right = 3
@@ -250,7 +373,7 @@ valign = 1
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 10 )
+script/script = SubResource( 12 )
 
 [node name="submit" type="ToolButton" parent="CanvasLayer"]
 
@@ -258,7 +381,7 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-theme/theme = SubResource( 8 )
+theme/theme = SubResource( 3 )
 margin/left = 672.0
 margin/top = 662.0
 margin/right = 922.0
@@ -270,7 +393,7 @@ enabled_focus_mode = 2
 shortcut = null
 text = "Submit Score"
 flat = true
-script/script = SubResource( 11 )
+script/script = SubResource( 13 )
 
 [node name="menu" type="ToolButton" parent="CanvasLayer"]
 
@@ -278,7 +401,7 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-theme/theme = SubResource( 8 )
+theme/theme = SubResource( 3 )
 margin/left = 671.0
 margin/top = 775.0
 margin/right = 921.0
@@ -289,7 +412,7 @@ enabled_focus_mode = 2
 shortcut = null
 text = "Main Menu"
 flat = true
-script/script = SubResource( 12 )
+script/script = SubResource( 14 )
 
 [node name="flavour" type="Label" parent="CanvasLayer"]
 
@@ -325,7 +448,7 @@ max_lines_visible = -1
 playback/process_mode = 1
 playback/default_blend_time = 0.0
 root/root = NodePath("..")
-anims/pulse = SubResource( 13 )
+anims/pulse = SubResource( 15 )
 playback/active = true
 playback/speed = 1.0
 blend_times = [  ]

@@ -7,41 +7,57 @@
 [ext_resource path="res://Scenes/backgroundscroller.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Graphics/grass.png" type="Texture" id=6]
 
-[sub_resource type="GDScript" id=1]
+[sub_resource type="GDScript" id=6]
 
-script/source = "extends Label\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 75))\n\tget_node(\"../score\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../score\").get_size().x/2, 250))\n\tget_node(\"../submit\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../submit\").get_size().x/2, 550))\n\tget_node(\"../guest_uname\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../guest_uname\").get_size().x/2, 450))\n\tget_node(\"../high_scores\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../high_scores\").get_size().x/2, 660))"
+script/source = "extends Label
 
-[sub_resource type="GDScript" id=2]
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2((OS.get_window_size().x/2) - get_size().x/2, 75))
+	get_node(\"../score\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../score\").get_size().x/2, 250))
+	get_node(\"../submit\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../submit\").get_size().x/2, 550))
+	get_node(\"../guest_uname\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../guest_uname\").get_size().x/2, 450))
+	get_node(\"../high_scores\").set_pos(Vector2((OS.get_window_size().x/2) - get_node(\"../high_scores\").get_size().x/2, 660))"
 
-script/source = "extends Label\n\nfunc _ready():\n\tvar scoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tvar latest_score = scoreFile.get_value(\"Score\", \"latest_score\")\n\tset_text(\"Latest score: \" + str(latest_score))"
+[sub_resource type="GDScript" id=7]
 
-[sub_resource type="StyleBoxFlat" id=3]
+script/source = "extends Label
+
+func _ready():
+	var scoreFile = ConfigFile.new()
+	scoreFile.load(\"user://score.scr\")
+	var latest_score = scoreFile.get_value(\"Score\", \"latest_score\")
+	set_text(\"Latest score: \" + str(latest_score))"
+
+[sub_resource type="StyleBoxFlat" id=1]
 
 content_margin/left = -1.0
 content_margin/right = -1.0
 content_margin/top = -1.0
 content_margin/bottom = -1.0
-bg_color = Color( 0.230469, 0.230469, 0.230469, 1 )
-light_color = Color( 0.609375, 0.609375, 0.609375, 0.633882 )
-dark_color = Color( 0.507812, 0.507812, 0.507812, 1 )
+bg_color = Color( 0, 0, 0, 0.322431 )
+light_color = Color( 0.294118, 0.294118, 0.294118, 1 )
+dark_color = Color( 0.296875, 0.296875, 0.296875, 1 )
 border_size = 4
-border_blend = true
-draw_bg = true
+border_blend = false
+draw_bg = false
 
-[sub_resource type="StyleBoxFlat" id=4]
+[sub_resource type="StyleBoxFlat" id=5]
 
 content_margin/left = -1.0
 content_margin/right = -1.0
 content_margin/top = -1.0
 content_margin/bottom = -1.0
-bg_color = Color( 0.140625, 0.140625, 0.140625, 1 )
-light_color = Color( 0.566406, 0.566406, 0.566406, 0.508196 )
-dark_color = Color( 0.564706, 0.564706, 0.564706, 0.505882 )
+bg_color = Color( 0, 0, 0, 0.590157 )
+light_color = Color( 0, 0, 0, 1 )
+dark_color = Color( 0, 0, 0, 1 )
 border_size = 4
-border_blend = true
+border_blend = false
 draw_bg = true
 
-[sub_resource type="Theme" id=5]
+[sub_resource type="Theme" id=3]
 
 default_font = ExtResource( 4 )
 ToolButton/colors/font_color = Color( 0.878431, 0.878431, 0.878431, 1 )
@@ -52,21 +68,72 @@ ToolButton/constants/hseparation = 3
 ToolButton/fonts/font = null
 ToolButton/styles/disabled = null
 ToolButton/styles/focus = null
-ToolButton/styles/hover = SubResource( 3 )
+ToolButton/styles/hover = SubResource( 1 )
 ToolButton/styles/normal = null
-ToolButton/styles/pressed = SubResource( 4 )
-
-[sub_resource type="GDScript" id=6]
-
-script/source = "extends ToolButton\n\nvar scoreFile\n\nfunc _ready():\n\tscoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tget_node(\"../guest_uname\").set_text(scoreFile.get_value(\"GameJolt\", \"username\"))\n\nfunc _on_submit_pressed():\n\trandomize()\n\tvar latest_score = scoreFile.get_value(\"Score\", \"latest_score\")\n\tvar guest_name = get_node(\"../guest_uname\").get_text()\n\tif(guest_name == \"\"):\n\t\tget_node(\"../../GameJoltAPI\").add_score_for_guest(str(latest_score), int(latest_score), \"Guest\"+str(randi()%10000000))\n\telse:\n\t\tget_node(\"../../GameJoltAPI\").add_score_for_guest(str(latest_score), int(latest_score), guest_name.replace(\" \", \"_\"))\n\nfunc _on_guest_uname_text_entered( text ):\n\t_on_submit_pressed()\n\nfunc _on_GameJoltAPI_api_score_added( success ):\n\tvar succeeded = {}\n\tsucceeded.parse_json(success)\n\tif(succeeded[\"response\"][\"success\"]):\n\t\tset_hidden(true)\n\t\tget_node(\"../guest_uname\").set_hidden(true)\n\t\tget_node(\"../score\").set_text(\"Success!\")\n\telse:\n\t\tget_node(\"../score\").set_text(\"Error!\\n\" + success)\n"
-
-[sub_resource type="GDScript" id=7]
-
-script/source = "extends ToolButton\n\nvar scoreFile\n\nfunc _ready():\n\tscoreFile = ConfigFile.new()\n\tscoreFile.load(\"user://score.scr\")\n\tget_node(\"../guest_uname\").set_text(scoreFile.get_value(\"GameJolt\", \"username\"))\n\nfunc _on_high_scores_pressed():\n\tget_tree().change_scene(\"res://Scenes/HighScores.tscn\")\n"
+ToolButton/styles/pressed = SubResource( 5 )
 
 [sub_resource type="GDScript" id=8]
 
-script/source = "extends ToolButton\n\nfunc _ready():\n\tset_fixed_process(true)\n\t\nfunc _fixed_process(delta):\n\tset_pos(Vector2(80, OS.get_window_size().y - 150))\n\nfunc _on_back_pressed():\n\tget_tree().change_scene(\"res://Scenes/MainMenu.tscn\")\n"
+script/source = "extends ToolButton
+
+var scoreFile
+
+func _ready():
+	scoreFile = ConfigFile.new()
+	scoreFile.load(\"user://score.scr\")
+	get_node(\"../guest_uname\").set_text(scoreFile.get_value(\"GameJolt\", \"username\"))
+
+func _on_submit_pressed():
+	randomize()
+	var latest_score = scoreFile.get_value(\"Score\", \"latest_score\")
+	var guest_name = get_node(\"../guest_uname\").get_text()
+	if(guest_name == \"\"):
+		get_node(\"../../GameJoltAPI\").add_score_for_guest(str(latest_score), int(latest_score), \"Guest\"+str(randi()%10000000))
+	else:
+		get_node(\"../../GameJoltAPI\").add_score_for_guest(str(latest_score), int(latest_score), guest_name.replace(\" \", \"_\"))
+
+func _on_guest_uname_text_entered( text ):
+	_on_submit_pressed()
+
+func _on_GameJoltAPI_api_score_added( success ):
+	var succeeded = {}
+	succeeded.parse_json(success)
+	if(succeeded[\"response\"][\"success\"]):
+		set_hidden(true)
+		get_node(\"../guest_uname\").set_hidden(true)
+		get_node(\"../score\").set_text(\"Success!\")
+	else:
+		get_node(\"../score\").set_text(\"Error!\\n\" + success)
+"
+
+[sub_resource type="GDScript" id=9]
+
+script/source = "extends ToolButton
+
+var scoreFile
+
+func _ready():
+	scoreFile = ConfigFile.new()
+	scoreFile.load(\"user://score.scr\")
+	get_node(\"../guest_uname\").set_text(scoreFile.get_value(\"GameJolt\", \"username\"))
+
+func _on_high_scores_pressed():
+	get_tree().change_scene(\"res://Scenes/HighScores.tscn\")
+"
+
+[sub_resource type="GDScript" id=10]
+
+script/source = "extends ToolButton
+
+func _ready():
+	set_fixed_process(true)
+	
+func _fixed_process(delta):
+	set_pos(Vector2(80, OS.get_window_size().y - 150))
+
+func _on_back_pressed():
+	get_tree().change_scene(\"res://Scenes/MainMenu.tscn\")
+"
 
 [node name="Node" type="Node"]
 
@@ -76,7 +143,9 @@ use_threads = false
 body_size_limit = -1
 max_redirects = 8
 script/script = ExtResource( 1 )
-__meta__ = { "_editor_icon":ExtResource( 2 ) }
+__meta__ = {
+"_editor_icon": ExtResource( 2 )
+}
 private_key = "019361378474be33e306263e790331f2"
 game_id = "244666"
 
@@ -106,7 +175,7 @@ text = "Submit Score"
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 1 )
+script/script = SubResource( 6 )
 
 [node name="score" type="Label" parent="CanvasLayer"]
 
@@ -132,7 +201,7 @@ align = 1
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
-script/script = SubResource( 2 )
+script/script = SubResource( 7 )
 
 [node name="guest_uname" type="LineEdit" parent="CanvasLayer"]
 
@@ -158,7 +227,7 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-theme/theme = SubResource( 5 )
+theme/theme = SubResource( 3 )
 margin/left = 637.0
 margin/top = 568.0
 margin/right = 887.0
@@ -168,7 +237,7 @@ enabled_focus_mode = 2
 shortcut = null
 text = "Submit Score"
 flat = true
-script/script = SubResource( 6 )
+script/script = SubResource( 8 )
 
 [node name="high_scores" type="ToolButton" parent="CanvasLayer"]
 
@@ -176,7 +245,7 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-theme/theme = SubResource( 5 )
+theme/theme = SubResource( 3 )
 margin/left = 638.0
 margin/top = 687.0
 margin/right = 888.0
@@ -186,7 +255,7 @@ enabled_focus_mode = 2
 shortcut = null
 text = "High Scores"
 flat = true
-script/script = SubResource( 7 )
+script/script = SubResource( 9 )
 
 [node name="back" type="ToolButton" parent="CanvasLayer"]
 
@@ -194,7 +263,7 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-theme/theme = SubResource( 5 )
+theme/theme = SubResource( 3 )
 margin/left = 72.0
 margin/top = 735.0
 margin/right = 322.0
@@ -204,7 +273,7 @@ enabled_focus_mode = 2
 shortcut = null
 text = "Back"
 flat = true
-script/script = SubResource( 8 )
+script/script = SubResource( 10 )
 
 [node name="RigidBody2D" parent="." instance=ExtResource( 5 )]
 
@@ -213,7 +282,7 @@ script/script = SubResource( 8 )
 transform/scale = Vector2( 2, 2 )
 texture = ExtResource( 6 )
 centered = false
-modulate = Color( 0.623529, 0.92549, 0.988235, 1 )
+modulate = Color( 0.447059, 0, 0, 1 )
 
 [connection signal="api_score_added" from="GameJoltAPI" to="CanvasLayer/submit" method="_on_GameJoltAPI_api_score_added"]
 

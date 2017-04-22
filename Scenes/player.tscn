@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=1]
+[gd_scene load_steps=10 format=1]
 
-[ext_resource path="res://Graphics/player.png" type="Texture" id=1]
+[ext_resource path="res://Graphics/real_player.png" type="Texture" id=1]
 [ext_resource path="res://Sound/shoot.wav" type="Sample" id=2]
+[ext_resource path="res://Graphics/player.png" type="Texture" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 
@@ -10,11 +11,91 @@ extents = Vector2( 9.86206, 9.69571 )
 
 [sub_resource type="GDScript" id=2]
 
-script/source = "extends RigidBody2D\n\nvar SPEED = 120\nvar shaking = false\nonready var sprite = get_node(\"Sprite\")\nvar save_location = \"user://score.scr\"\nvar number_of_bullets = 0\nvar magnitude_speed = 0\n\nfunc _ready():\n\tset_fixed_process(true)\n\tset_process_input(true)\n\t\nfunc shoot_bullet(pulse_vector):\n\tvar bullet = load(\"res://Scenes/bullet.tscn\").instance()\n\tbullet.pulse_vector = pulse_vector\n\tbullet.set_pos(get_pos())\n\tget_node(\"../../Node\").add_child(bullet)\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(save_location)\n\tvar sfx_value = savedata.get_value(\"Options\", \"sound\")\n\tif(sfx_value):\n\t\tget_node(\"SamplePlayer2D\").play(\"shoot\")\n\tnumber_of_bullets += 1\n\tshaking = true\n\tget_node(\"Camera2D/shaketimer\").start()\n\tget_node(\"../Node2D/shootpulse\").play(\"shoot\")\n\nfunc _input(event):\n\tif(event.is_action_pressed(\"rt_shoot\")):\n\t\tvar direction = Vector2(Input.get_joy_axis(0, 2), Input.get_joy_axis(0, 5))\n\t\tvar pulse_vector = Vector2(0, 1).rotated(direction.angle())\n\t\tshoot_bullet(pulse_vector)\n\tif(event.type == InputEvent.MOUSE_BUTTON):\n\t\tif(event.button_index == 1 and event.pressed):\n\t\t\tvar click_position = get_node(\"../background\").get_local_mouse_pos() / 2\n\t\t\tvar click_angle = get_angle_to(click_position) + get_rot()\n\t\t\tvar pulse_vector = Vector2(0, 1).rotated(click_angle)\n\t\t\tshoot_bullet(pulse_vector)\n\n\nfunc _fixed_process(delta):\n\tvar up_pressed = Input.is_action_pressed(\"ui_up\")\n\tvar down_pressed = Input.is_action_pressed(\"ui_down\")\n\tvar right_pressed = Input.is_action_pressed(\"ui_right\")\n\tvar left_pressed = Input.is_action_pressed(\"ui_left\")\n\t#var menu_pressed = Input.is_action_pressed(\"open_menu\")\n\tvar movementvector = Vector2(0, 0)\n\tvar torque = 0\n\t\n\t# Movement checks\n\tif(up_pressed):\n\t\ttorque = 100\n\t\tmovementvector.y = -SPEED\n\tif(down_pressed):\n\t\ttorque = -100\n\t\tmovementvector.y = SPEED\n\tif(right_pressed):\n\t\ttorque = 100\n\t\tmovementvector.x = SPEED\n\tif(left_pressed):\n\t\ttorque = -100\n\t\tmovementvector.x = -SPEED\n\tset_applied_torque(torque)\n\tmagnitude_speed = sqrt(get_linear_velocity().y * get_linear_velocity().y + get_linear_velocity().x*get_linear_velocity().x)\n\tif(abs(get_linear_velocity().y) <= 1000 and abs(get_linear_velocity().x) <= 1000):\n\t\tset_applied_force(movementvector)\n\telse:\n\t\tset_applied_force(Vector2(0, 0))\n\t\n\tif(shaking):\n\t\tget_node(\"Camera2D\").set_offset(Vector2(5 - randf()*10, 5 - randf()*10))\n\nfunc _on_shaketimer_timeout():\n\tshaking = false\n"
+script/source = "extends RigidBody2D
+
+var SPEED = 120
+var shaking = false
+onready var sprite = get_node(\"Sprite\")
+var save_location = \"user://score.scr\"
+var number_of_bullets = 0
+var magnitude_speed = 0
+
+func _ready():
+	set_fixed_process(true)
+	set_process_input(true)
+	
+func shoot_bullet(pulse_vector):
+	var bullet = load(\"res://Scenes/bullet.tscn\").instance()
+	bullet.pulse_vector = pulse_vector
+	bullet.set_pos(get_pos())
+	get_node(\"../../Node\").add_child(bullet)
+	var savedata = ConfigFile.new()
+	savedata.load(save_location)
+	var sfx_value = savedata.get_value(\"Options\", \"sound\")
+	if(sfx_value):
+		get_node(\"SamplePlayer2D\").play(\"shoot\")
+	number_of_bullets += 1
+	shaking = true
+	get_node(\"Camera2D/shaketimer\").start()
+	get_node(\"../Node2D/shootpulse\").play(\"shoot\")
+
+func _input(event):
+	if(event.is_action_pressed(\"rt_shoot\")):
+		var direction = Vector2(Input.get_joy_axis(0, 2), Input.get_joy_axis(0, 5))
+		var pulse_vector = Vector2(0, 1).rotated(direction.angle())
+		shoot_bullet(pulse_vector)
+	if(event.type == InputEvent.MOUSE_BUTTON):
+		if(event.button_index == 1 and event.pressed):
+			var click_position = get_node(\"../background\").get_local_mouse_pos() / 2
+			var click_angle = get_angle_to(click_position) + get_rot()
+			var pulse_vector = Vector2(0, 1).rotated(click_angle)
+			shoot_bullet(pulse_vector)
+
+
+func _fixed_process(delta):
+	var up_pressed = Input.is_action_pressed(\"ui_up\")
+	var down_pressed = Input.is_action_pressed(\"ui_down\")
+	var right_pressed = Input.is_action_pressed(\"ui_right\")
+	var left_pressed = Input.is_action_pressed(\"ui_left\")
+	#var menu_pressed = Input.is_action_pressed(\"open_menu\")
+	var movementvector = Vector2(0, 0)
+	var torque = 0
+	
+	# Movement checks
+	if(up_pressed):
+		torque = 100
+		movementvector.y = -SPEED
+	if(down_pressed):
+		torque = -100
+		movementvector.y = SPEED
+	if(right_pressed):
+		torque = 100
+		movementvector.x = SPEED
+	if(left_pressed):
+		torque = -100
+		movementvector.x = -SPEED
+	set_applied_torque(torque)
+	magnitude_speed = sqrt(get_linear_velocity().y * get_linear_velocity().y + get_linear_velocity().x*get_linear_velocity().x)
+	if(abs(get_linear_velocity().y) <= 1000 and abs(get_linear_velocity().x) <= 1000):
+		set_applied_force(movementvector)
+	else:
+		set_applied_force(Vector2(0, 0))
+	
+	if(shaking):
+		get_node(\"Camera2D\").set_offset(Vector2(5 - randf()*10, 5 - randf()*10))
+
+func _on_shaketimer_timeout():
+	shaking = false
+"
 
 [sub_resource type="SampleLibrary" id=3]
 
-samples/shoot = { "db":0.0, "pitch":1.0, "sample":ExtResource( 2 ) }
+samples/shoot = {
+"db": 0.0,
+"pitch": 1.0,
+"priority": 0,
+"sample": ExtResource( 2 )
+}
 
 [sub_resource type="RectangleShape2D" id=4]
 
@@ -23,11 +104,36 @@ extents = Vector2( 10.3689, 10.1866 )
 
 [sub_resource type="GDScript" id=5]
 
-script/source = "extends Area2D\n\nfunc _on_Area2D_body_enter( body ):\n\tif(body.is_in_group(\"enemies\")):\n\t\tvar bounce_asset = load(\"res://Scenes/bounce.tscn\")\n\t\tvar bounce = bounce_asset.instance()\n\t\tbounce.set_pos(get_node(\"../../player\").get_pos())\n\t\tget_node(\"../../../Node\").add_child(bounce)\n"
+script/source = "extends Area2D
+
+func _on_Area2D_body_enter( body ):
+	if(body.is_in_group(\"enemies\")):
+		var bounce_asset = load(\"res://Scenes/bounce.tscn\")
+		var bounce = bounce_asset.instance()
+		bounce.set_pos(get_node(\"../../player\").get_pos())
+		get_node(\"../../../Node\").add_child(bounce)
+"
 
 [sub_resource type="GDScript" id=6]
 
-script/source = "extends Sprite\n\nfunc _ready():\n\tvar savedata = ConfigFile.new()\n\tsavedata.load(\"user://score.scr\")\n\tif(savedata.get_value(\"Options\", \"controller\") == true):\n\t\tset_fixed_process(true)\n\telse:\n\t\tset_hidden(true)\n\t\nfunc _fixed_process(delta):\n\tvar direction = Vector2(Input.get_joy_axis(0, 2), Input.get_joy_axis(0, 5))\n\tvar degrees = (direction).angle()*180/PI\n\tset_rotd(degrees - get_node(\"../../player\").get_rotd())\n\tif(direction.length() < 0.1):\n\t\tset_hidden(true)\n\telse:\n\t\tset_hidden(false)"
+script/source = "extends Sprite
+
+func _ready():
+	var savedata = ConfigFile.new()
+	savedata.load(\"user://score.scr\")
+	if(savedata.get_value(\"Options\", \"controller\") == true):
+		set_fixed_process(true)
+	else:
+		set_hidden(true)
+	
+func _fixed_process(delta):
+	var direction = Vector2(Input.get_joy_axis(0, 2), Input.get_joy_axis(0, 5))
+	var degrees = (direction).angle()*180/PI
+	set_rotd(degrees - get_node(\"../../player\").get_rotd())
+	if(direction.length() < 0.1):
+		set_hidden(true)
+	else:
+		set_hidden(false)"
 
 [node name="player" type="RigidBody2D"]
 
@@ -62,9 +168,7 @@ _update_shape_index = 0
 
 [node name="Sprite" type="Sprite" parent="."]
 
-transform/scale = Vector2( 0.15, 0.15 )
 texture = ExtResource( 1 )
-modulate = Color( 0, 0, 0, 1 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
@@ -114,6 +218,7 @@ default/chorus_send = 0.0
 visibility/behind_parent = true
 config/amount = 16
 config/lifetime = 2.0
+config/process_mode = 1
 config/local_space = false
 params/direction = 0.0
 params/spread = 180.0
@@ -157,7 +262,7 @@ _update_shape_index = 0
 visibility/opacity = 0.2
 transform/pos = Vector2( -0.962818, 0.00290346 )
 transform/scale = Vector2( 0.016161, 1 )
-texture = ExtResource( 1 )
+texture = ExtResource( 3 )
 centered = false
 modulate = Color( 0, 0, 0, 1 )
 script/script = SubResource( 6 )

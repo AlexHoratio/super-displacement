@@ -65,5 +65,5 @@ func _on_OptionButton_released():
 func _on_SignInButton_released():
 	get_tree().change_scene("res://Scenes/SignIn.tscn")
 
-func _on_HighScoreButton_pressed():
+func _on_HighScoreButton_released():
 	get_tree().change_scene("res://Scenes/HighScores.tscn")
